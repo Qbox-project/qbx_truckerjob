@@ -102,52 +102,46 @@ end
 
 local function CreateZone(type, number)
     local coords
-    local heading
-    local boxName
-    local event
-    local label
     local size
+    local rotation
+    local boxName
+    local icon
+    local debug
 
-    if type == 'main' then
-        event = "qb-truckerjob:client:PaySlip"
-        label = "Payslip"
-        coords = vector3(Config.Locations[type].coords.x, Config.Locations[type].coords.y, Config.Locations[type].coords.z)
-        heading = Config.Locations[type].coords.w
-        boxName = Config.Locations[type].label
-        size = vector3(3.0, 3.0, 5.0)
-    elseif type == 'vehicle' then
-        event = "qb-truckerjob:client:Vehicle"
-        label = 'vehicle'
-        coords = vector3(Config.Locations[type].coords.x, Config.Locations[type].coords.y, Config.Locations[type].coords.z)
-        heading = Config.Locations[type].coords.w
-        boxName = Config.Locations[type].label
-        size = vector3(5.0, 5.0, 5.0)
-    elseif type == 'stores' then
-        event = "qb-truckerjob:client:Store"
-        label = "Store"
-        coords = vector3(Config.Locations[type][number].coords.x, Config.Locations[type][number].coords.y, Config.Locations[type][number].coords.z)
-        heading = Config.Locations[type][number].coords.w
-        boxName = Config.Locations[type][number].name
-        size = vector3(40.0, 40.0, 5.0)
+    for k, v in pairs(Config.Locations) do
+        if k == type then
+            if type == 'stores' then
+                coords = v[number].coords
+                size = v[number].size
+                rotation = v[number].rotation
+                boxName = v[number].label
+                debug = v[number].debug
+            else
+                coords = v.coords
+                size = v.size
+                rotation = v.rotation
+                boxName = v.label
+                icon = v.icon
+                debug = v.debug
+            end
+        end
     end
     if Config.UseTarget and type == 'main' then
-        CreateThread(function()
-            exports.ox_target:addBoxZone({
-                coords = coords,
-                size = size,
-                rotation = heading,
-                debug = false,
-                options = {
-                    {
-                        name = boxName,
-                        event = event,
-                        icon = 'fa-solid fa-eye',
-                        label = label,
-                        distance = 2,
-                    }
+        exports.ox_target:addBoxZone({
+            coords = coords,
+            size = size,
+            rotation = rotation,
+            debug = debug,
+            options = {
+                {
+                    name = boxName,
+                    event = 'qb-truckerjob:client:PaySlip',
+                    icon = icon,
+                    label = boxName,
+                    distance = 2,
                 }
-            })
-        end)
+            }
+        })
     else
         CreateThread(function()
             local function enterZone()
@@ -176,8 +170,8 @@ local function CreateZone(type, number)
                 name = boxName,
                 coords = coords,
                 size = size,
-                rotation = heading,
-                debug = false,
+                rotation = rotation,
+                debug = debug,
                 onEnter = enterZone,
                 onExit = exitZone
             })
@@ -194,7 +188,7 @@ local function getNewLocation()
         CurrentLocation = {}
         CurrentLocation.id = location
         CurrentLocation.dropcount = math.random(1, 3)
-        CurrentLocation.store = Config.Locations['stores'][location].name
+        CurrentLocation.store = Config.Locations['stores'][location].label
         CurrentLocation.x = Config.Locations['stores'][location].coords.x
         CurrentLocation.y = Config.Locations['stores'][location].coords.y
         CurrentLocation.z = Config.Locations['stores'][location].coords.z
@@ -294,7 +288,7 @@ local function Deliver()
     Wait(500)
     TriggerEvent('animations:client:EmoteCommandStart', {"bumbin"})
     if lib.progressCircle({
-        duration = 2000,
+        duration = 3000,
         position = 'bottom',
         useWhileDead = false,
         canCancel = true,
@@ -393,10 +387,11 @@ end)
 RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
     local vehicleInfo = selectedVeh
     local coords = Config.Locations['vehicle'].coords
+    local heading = Config.Locations['vehicle'].rotation
     QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
         local veh = NetToVeh(netId)
         SetVehicleNumberPlateText(veh, "TRUK"..tostring(math.random(1000, 9999)))
-        SetEntityHeading(veh, coords.w)
+        SetEntityHeading(veh, heading)
         SetVehicleLivery(veh, 1)
         SetVehicleColours(veh, 122, 122)
         exports['LegacyFuel']:SetFuel(veh, 100.0)

@@ -5,6 +5,7 @@ local Bail = {}
 RegisterNetEvent('qb-trucker:server:DoBail', function(bool, vehInfo)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
     if bool then
         if Player.PlayerData.money.cash >= Config.BailPrice then
             Bail[Player.PlayerData.citizenid] = Config.BailPrice
@@ -35,6 +36,7 @@ end)
 RegisterNetEvent('qb-trucker:server:01101110', function(drops)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
     drops = tonumber(drops)
     local bonus = 0
     local DropPrice = math.random(100, 120)
@@ -60,9 +62,11 @@ RegisterNetEvent('qb-trucker:server:01101110', function(drops)
 end)
 
 RegisterNetEvent('qb-trucker:server:nano', function()
-    local chance = math.random(1,100)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(source)
+    if not Player then return end
+    local chance = math.random(1, 100)
     if chance > 26 then return end
-    local xPlayer = QBCore.Functions.GetPlayer(tonumber(source))
-    xPlayer.Functions.AddItem("cryptostick", 1, false)
-    TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items["cryptostick"], "add")
+    Player.Functions.AddItem("cryptostick", 1, false)
+    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["cryptostick"], "add")
 end)
