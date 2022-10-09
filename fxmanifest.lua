@@ -15,4 +15,9 @@ client_script 'client/main.lua'
 
 server_script 'server/main.lua'
 
+dependencies {
+	'ox_lib',
+	'ox_target'
+}
+
 lua54 'yes'

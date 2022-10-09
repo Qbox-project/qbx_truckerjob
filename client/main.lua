@@ -17,6 +17,7 @@ local markerLocation
 local zoneCombo = nil
 local returningToStation = false
 
+
 -- Functions
 
 local function returnToStation()
@@ -159,7 +160,7 @@ local function CreateZone(type, number)
                     ShowMarker(true)
                 elseif type == 'stores' then
                     markerLocation = coords
-                    lib.notify({ title = 'Store Reached', description = Lang:t("mission.store_reached"), type = 'inform' })
+                    lib.notify({ title = 'Store Reached', description = Lang:t("mission.store_reached"), duration = 5000, type = 'inform' })
                     ShowMarker(true)
                     SetDelivering(true)
                 end
@@ -205,7 +206,7 @@ local function getNewLocation()
         SetBlipRoute(CurrentBlip, true)
         SetBlipRouteColour(CurrentBlip, 3)
     else
-        lib.notify({ title = 'Payslip Time', description = Lang:t("success.payslip_time"), type = 'success' })
+        lib.notify({ title = 'Payslip Time', description = Lang:t("success.payslip_time"), duration = 5000, type = 'success' })
         if CurrentBlip ~= nil then
             RemoveBlip(CurrentBlip)
             ClearAllBlipRoutes()
@@ -245,19 +246,19 @@ end
 
 local function GetInTrunk()
     if IsPedInAnyVehicle(cache.ped, false) then
-        return lib.notify({ title = 'Get Out Vehicle', description = Lang:t("error.get_out_vehicle"), type = 'error' })
+        return lib.notify({ title = 'Get Out Vehicle', description = Lang:t("error.get_out_vehicle"), duration = 5000, type = 'error' })
     end
     local pos = GetEntityCoords(cache.ped, true)
     local vehicle = GetVehiclePedIsIn(cache.ped, true)
     if not isTruckerVehicle(vehicle) or CurrentPlate ~= QBCore.Functions.GetPlate(vehicle) then
-        return lib.notify({ title = 'Vehicle Not Correct', description = Lang:t("error.vehicle_not_correct"), type = 'error' })
+        return lib.notify({ title = 'Vehicle Not Correct', description = Lang:t("error.vehicle_not_correct"), duration = 5000, type = 'error' })
     end
     if not BackDoorsOpen(vehicle) then
-        return lib.notify({ title = 'Backdoors Not Open', description = Lang:t("error.backdoors_not_open"), type = 'error' })
+        return lib.notify({ title = 'Backdoors Not Open', description = Lang:t("error.backdoors_not_open"), duration = 5000, type = 'error' })
     end
     local trunkpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
     if #(pos - vector3(trunkpos.x, trunkpos.y, trunkpos.z)) > 1.5 then
-        return lib.notify({ title = 'Too Far From Trunk', description = Lang:t("error.too_far_from_trunk"), type = 'error' })
+        return lib.notify({ title = 'Too Far From Trunk', description = Lang:t("error.too_far_from_trunk"), duration = 5000, type = 'error' })
     end
     if isWorking then return end
     isWorking = true
@@ -284,7 +285,7 @@ local function GetInTrunk()
     else
         isWorking = false
         StopAnimTask(cache.ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
-        lib.notify({ title = 'Cancelled', description = Lang:t("error.cancelled"), type = 'error' })
+        lib.notify({ title = 'Cancelled', description = Lang:t("error.cancelled"), duration = 5000, type = 'error' })
     end
 end
 
@@ -326,18 +327,18 @@ local function Deliver()
             currentCount = 0
             JobsDone = JobsDone + 1
             if JobsDone == Config.MaxDrops then
-                lib.notify({ title = 'Return To Station', description = Lang:t("mission.return_to_station"), type = 'inform' })
+                lib.notify({ title = 'Return To Station', description = Lang:t("mission.return_to_station"), duration = 5000, type = 'inform' })
                 returnToStation()
             else
-                lib.notify({ title = 'Goto Next Point', description = Lang:t("mission.goto_next_point"), type = 'inform' })
+                lib.notify({ title = 'Goto Next Point', description = Lang:t("mission.goto_next_point"), duration = 5000, type = 'inform' })
                 getNewLocation()
             end
         elseif currentCount ~= CurrentLocation.dropcount then
-            lib.notify({ title = 'Another Box', description = Lang:t("mission.another_box"), type = 'inform' })
+            lib.notify({ title = 'Another Box', description = Lang:t("mission.another_box"), duration = 5000, type = 'inform' })
         else
             isWorking = false
             ClearPedTasks(cache.ped)
-            lib.notify({ title = 'Cancelled', description = Lang:t("error.cancelled"), type = 'error' })
+            lib.notify({ title = 'Cancelled', description = Lang:t("error.cancelled"), duration = 5000, type = 'error' })
         end
     end
 end
@@ -429,13 +430,13 @@ RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
                 if returningToStation or CurrentLocation then
                     ClearAllBlipRoutes()
                     returningToStation = false
-                    lib.notify({ title = 'Job Completed', description = Lang:t("mission.job_completed"), type = 'success' })
+                    lib.notify({ title = 'Job Completed', description = Lang:t("mission.job_completed"), duration = 5000, type = 'success' })
                 end
             else
-                lib.notify({ title = 'Vehicle Not Correct', description = Lang:t("error.vehicle_not_correct"), type = 'error' })
+                lib.notify({ title = 'Vehicle Not Correct', description = Lang:t("error.vehicle_not_correct"), duration = 5000, type = 'error' })
             end
         else
-            lib.notify({ title = 'No Driver', description = Lang:t("error.no_driver"), type = 'error' })
+            lib.notify({ title = 'No Driver', description = Lang:t("error.no_driver"), duration = 5000, type = 'error' })
         end
     else
         MenuGarage()
@@ -455,7 +456,7 @@ RegisterNetEvent('qb-truckerjob:client:PaySlip', function()
             CurrentBlip = nil
         end
     else
-        lib.notify({ title = 'No Work Done', description = Lang:t("error.no_work_done"), type = 'error' })
+        lib.notify({ title = 'No Work Done', description = Lang:t("error.no_work_done"), duration = 5000, type = 'error' })
     end
 end)
 
@@ -477,7 +478,7 @@ CreateThread(function()
                     if #(GetEntityCoords(cache.ped) - markerLocation) < 5 then
                         Deliver()
                     else
-                        lib.notify({ title = 'Too Far From Delivery', description = Lang:t("error.too_far_from_delivery"), type = 'error' })
+                        lib.notify({ title = 'Too Far From Delivery', description = Lang:t("error.too_far_from_delivery"), duration = 5000, type = 'error' })
                     end
                 end
             end
