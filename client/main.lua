@@ -91,12 +91,12 @@ local function MenuGarage()
 end
 
 local function SetDelivering(active)
-    if not PlayerJob.name == 'trucker' then return end
+    if PlayerJob.name ~= 'trucker' then return end
     Delivering = active
 end
 
 local function ShowMarker(active)
-    if not PlayerJob.name == 'trucker' then return end
+    if PlayerJob.name ~= 'trucker' then return end
     showMarker = active
 end
 
@@ -168,7 +168,7 @@ local function CreateZone(type, number)
                     SetDelivering(false)
                 end
             end
-            local zoneCombo = lib.zones.box({
+            local boxZones = lib.zones.box({
                 name = boxName,
                 coords = coords,
                 size = size,
@@ -195,7 +195,7 @@ local function CreateZone(type, number)
                     onExit = exitStoreZone
                 })
             elseif type == 'stores' then
-                CurrentLocation.zoneCombo = zoneCombo
+                CurrentLocation.zoneCombo = boxZones
             end
         end)
     end
@@ -358,14 +358,14 @@ end
 -- Events
 
 AddEventHandler('onResourceStart', function(resource)
-    if not resource == GetCurrentResourceName() then return end
+    if resource ~= GetCurrentResourceName() then return end
     PlayerJob = QBCore.Functions.GetPlayerData().job
     CurrentLocation = nil
     CurrentBlip = nil
     hasBox = false
     isWorking = false
     JobsDone = 0
-    if not PlayerJob.name == 'trucker' then return end
+    if PlayerJob.name ~= 'trucker' then return end
     CreateElements()
 end)
 
@@ -376,7 +376,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     hasBox = false
     isWorking = false
     JobsDone = 0
-    if not PlayerJob.name == 'trucker' then return end
+    if PlayerJob.name ~= 'trucker' then return end
     CreateElements()
 end)
 
