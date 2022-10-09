@@ -1,21 +1,17 @@
 fx_version 'cerulean'
-game 'gta5'
+game       'gta5'
 
-description 'QB-TruckerJob'
 version '1.0.0'
+repository 'https://github.com/QBCore-Remastered/qb-truckerjob'
 
 shared_scripts {
-	'@qb-core/shared/locale.lua',
 	'config.lua',
+	'@qb-core/shared/locale.lua',
 	'locales/en.lua',
+	'@ox_lib/init.lua'
 }
 
-client_scripts {
-	'@PolyZone/client.lua',
-	'@PolyZone/BoxZone.lua',
-	'@PolyZone/ComboZone.lua',
-    'client/main.lua'
-}
+client_script 'client/main.lua'
 
 server_script 'server/main.lua'
 

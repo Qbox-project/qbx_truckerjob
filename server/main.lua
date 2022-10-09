@@ -9,21 +9,21 @@ RegisterNetEvent('qb-trucker:server:DoBail', function(bool, vehInfo)
         if Player.PlayerData.money.cash >= Config.BailPrice then
             Bail[Player.PlayerData.citizenid] = Config.BailPrice
             Player.Functions.RemoveMoney('cash', Config.BailPrice, "tow-received-bail")
-            TriggerClientEvent('QBCore:Notify', src, Lang:t("success.paid_with_cash", {value = Config.BailPrice}), 'success')
+            TriggerClientEvent('ox_lib:notify', src, { title = 'Paid With Cash', description = Lang:t("success.paid_with_cash", {value = Config.BailPrice}), type = 'success'})
             TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
         elseif Player.PlayerData.money.bank >= Config.BailPrice then
             Bail[Player.PlayerData.citizenid] = Config.BailPrice
             Player.Functions.RemoveMoney('bank', Config.BailPrice, "tow-received-bail")
-            TriggerClientEvent('QBCore:Notify', src, Lang:t("success.paid_with_bank", {value = Config.BailPrice}), 'success')
+            TriggerClientEvent('ox_lib:notify', src, { title = 'Paid With Bank', description = Lang:t("success.paid_with_bank", {value = Config.BailPrice}), type = 'success'})
             TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
         else
-            TriggerClientEvent('QBCore:Notify', src, Lang:t("error.no_deposit", {value = Config.BailPrice}), 'error')
+            TriggerClientEvent('ox_lib:notify', src, { title = 'No Deposit', description = Lang:t("error.no_deposit", {value = Config.BailPrice}), type = 'error'})
         end
     else
         if Bail[Player.PlayerData.citizenid] then
             Player.Functions.AddMoney('cash', Bail[Player.PlayerData.citizenid], "trucker-bail-paid")
             Bail[Player.PlayerData.citizenid] = nil
-            TriggerClientEvent('QBCore:Notify', src, Lang:t("success.refund_to_cash", {value = Config.BailPrice}), 'success')
+            TriggerClientEvent('ox_lib:notify', src, { title = 'Refund To Cash', description = Lang:t("success.refund_to_cash", {value = Config.BailPrice}), type = 'success'})
         end
     end
 end)
@@ -50,7 +50,8 @@ RegisterNetEvent('qb-trucker:server:01101110', function(drops)
     local payment = price - taxAmount
     Player.Functions.AddJobReputation(drops)
     Player.Functions.AddMoney("bank", payment, "trucker-salary")
-    TriggerClientEvent('QBCore:Notify', src, Lang:t("success.you_earned", {value = payment}), 'success')
+    TriggerClientEvent('ox_lib:notify', src, { title = 'You Earned', description = Lang:t("success.you_earned", {value = payment}), type = 'success'})
+
 end)
 
 RegisterNetEvent('qb-trucker:server:nano', function()

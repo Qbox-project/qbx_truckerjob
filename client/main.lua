@@ -37,26 +37,8 @@ end
 
 local function getNextLocation()
     local current = 1
-
-    if Config.FixedLocation then
-        local pos = GetEntityCoords(PlayerPedId(), true)
-        local dist = nil
-        for k, v in pairs(Config.Locations["stores"]) do
-            local dist2 = #(pos - vector3(v.coords.x, v.coords.y, v.coords.z))
-            if dist then
-                if dist2 < dist then
-                    current = k
-                    dist = dist2
-                end
-            else
-                current = k
-                dist = dist2
-            end
-        end
-    else
-        while hasDoneLocation(current) do
-            current = math.random(#Config.Locations["stores"])
-        end
+    while hasDoneLocation(current) do
+        current = math.random(#Config.Locations['stores'])
     end
 
     return current
@@ -64,7 +46,7 @@ end
 
 local function isTruckerVehicle(vehicle)
     for k in pairs(Config.Vehicles) do
-        if GetEntityModel(vehicle) == joaat(k) then
+        if GetEntityModel(vehicle) == k then
             return true
         end
     end
@@ -90,42 +72,31 @@ local function RemoveTruckerBlips()
 end
 
 local function MenuGarage()
-    local truckMenu = {
-        {
-            header = Lang:t("menu.header"),
-            isMenuHeader = true
-        }
-    }
+    local truckMenu = {}
     for k in pairs(Config.Vehicles) do
-        truckMenu[#truckMenu+1] = {
-            header = Config.Vehicles[k],
-            params = {
-                event = "qb-trucker:client:TakeOutVehicle",
-                args = {
-                    vehicle = k
-                }
+        truckMenu[#truckMenu + 1] = {
+            title = Config.Vehicles[k],
+            event = "qb-trucker:client:TakeOutVehicle",
+            args = {
+                vehicle = k
             }
         }
     end
-
-    truckMenu[#truckMenu+1] = {
-        header = Lang:t("menu.close_menu"),
-        txt = "",
-        params = {
-            event = "qb-menu:client:closeMenu"
-        }
-
-    }
-    exports['qb-menu']:openMenu(truckMenu)
+    lib.registerContext({
+        id = 'trucker_veh_menu',
+        title = Lang:t("menu.header"),
+        options = truckMenu
+    })
+    lib.showContext('trucker_veh_menu')
 end
 
 local function SetDelivering(active)
-    if PlayerJob.name ~= "trucker" then return end
+    if not PlayerJob.name == 'trucker' then return end
     Delivering = active
 end
 
 local function ShowMarker(active)
-    if PlayerJob.name ~= "trucker" then return end
+    if not PlayerJob.name == 'trucker' then return end
     showMarker = active
 end
 
@@ -137,98 +108,96 @@ local function CreateZone(type, number)
     local label
     local size
 
-    if type == "main" then
+    if type == 'main' then
         event = "qb-truckerjob:client:PaySlip"
         label = "Payslip"
         coords = vector3(Config.Locations[type].coords.x, Config.Locations[type].coords.y, Config.Locations[type].coords.z)
-        heading = Config.Locations[type].coords.h
+        heading = Config.Locations[type].coords.w
         boxName = Config.Locations[type].label
-        size = 3
-    elseif type == "vehicle" then
+        size = vector3(3.0, 3.0, 5.0)
+    elseif type == 'vehicle' then
         event = "qb-truckerjob:client:Vehicle"
-        label = "Vehicle"
+        label = 'vehicle'
         coords = vector3(Config.Locations[type].coords.x, Config.Locations[type].coords.y, Config.Locations[type].coords.z)
-        heading = Config.Locations[type].coords.h
+        heading = Config.Locations[type].coords.w
         boxName = Config.Locations[type].label
-        size = 5
-    elseif type == "stores" then
+        size = vector3(5.0, 5.0, 5.0)
+    elseif type == 'stores' then
         event = "qb-truckerjob:client:Store"
         label = "Store"
         coords = vector3(Config.Locations[type][number].coords.x, Config.Locations[type][number].coords.y, Config.Locations[type][number].coords.z)
-        heading = Config.Locations[type][number].coords.h
+        heading = Config.Locations[type][number].coords.w
         boxName = Config.Locations[type][number].name
-        size = 40
+        size = vector3(40.0, 40.0, 5.0)
     end
-
-    if Config.UseTarget and type == "main" then
-        exports['qb-target']:AddBoxZone(boxName, coords, size, size, {
-            minZ = coords.z - 5.0,
-            maxZ = coords.z + 5.0,
-            name = boxName,
-            heading = heading,
-            debugPoly = false,
-        }, {
-            options = {
-                {
-                    type = "client",
-                    event = event,
-                    label = label,
-                },
-            },
-            distance = 2
-        })
-    else
-        local zone = BoxZone:Create(
-            coords, size, size, {
-                minZ = coords.z - 5.0,
-                maxZ = coords.z + 5.0,
-                name = boxName,
-                debugPoly = false,
-                heading = heading,
+    if Config.UseTarget and type == 'main' then
+        CreateThread(function()
+            exports.ox_target:addBoxZone({
+                coords = coords,
+                size = size,
+                rotation = heading,
+                debug = false,
+                options = {
+                    {
+                        name = boxName,
+                        event = event,
+                        icon = 'fa-solid fa-eye',
+                        label = label,
+                        distance = 2,
+                    }
+                }
             })
-
-        zoneCombo = ComboZone:Create({zone}, {name = boxName, debugPoly = false})
-        zoneCombo:onPlayerInOut(function(isPointInside)
-            if isPointInside then
-                if type == "main" then
+        end)
+    else
+        CreateThread(function()
+            local function enterZone()
+                if type == 'main' then
                     TriggerEvent('qb-truckerjob:client:PaySlip')
-                elseif type == "vehicle" then
+                elseif type == 'vehicle' then
                     TriggerEvent('qb-truckerjob:client:Vehicle')
-                elseif type == "stores" then
+                elseif type == 'stores' then
                     markerLocation = coords
-                    QBCore.Functions.Notify(Lang:t("mission.store_reached"))
+                    lib.notify({ title = 'Store Reached', description = Lang:t("mission.store_reached"), type = 'inform' })
                     ShowMarker(true)
                     SetDelivering(true)
                 end
-            else
-                if type == "stores" then
+            end
+            local function exitZone()
+                if type == 'stores' then
                     ShowMarker(false)
                     SetDelivering(false)
                 end
             end
-        end)
-        if type == "vehicle" then
-            local zonedel = BoxZone:Create(
-                coords, 40, 40, {
-                    minZ = coords.z - 5.0,
-                    maxZ = coords.z + 5.0,
-                    name = boxName,
-                    debugPoly = false,
-                    heading = heading,
-                })
-
-            local zoneCombodel = ComboZone:Create({zonedel}, {name = boxName, debugPoly = false})
-            zoneCombodel:onPlayerInOut(function(isPointInside)
-                if isPointInside then
+            local zoneCombo = lib.zones.box({
+                name = boxName,
+                coords = coords,
+                size = size,
+                rotation = heading,
+                debug = false,
+                onEnter = enterZone,
+                onExit = exitZone
+            })
+            if type == 'vehicle' then
+                local function enterStoreZone()
                     markerLocation = coords
                     ShowMarker(true)
-                else
+                end
+                local function exitStoreZone()
                     ShowMarker(false)
                 end
-            end)
-        elseif type == "stores" then
-            CurrentLocation.zoneCombo = zoneCombo
-        end
+                local zonedel = lib.zones.box({
+                    name = boxName,
+                    coords = coords,
+                    size = vector3(40.0, 40.0, 5.0),
+                    rotation = heading,
+                    debug = false,
+                    onEnter = enterStoreZone,
+                    onExit = exitStoreZone
+                })
+            elseif type == 'stores' then
+                CurrentLocation.zoneCombo = zoneCombo
+            end
+        end)
     end
 end
 
@@ -238,18 +207,18 @@ local function getNewLocation()
         CurrentLocation = {}
         CurrentLocation.id = location
         CurrentLocation.dropcount = math.random(1, 3)
-        CurrentLocation.store = Config.Locations["stores"][location].name
-        CurrentLocation.x = Config.Locations["stores"][location].coords.x
-        CurrentLocation.y = Config.Locations["stores"][location].coords.y
-        CurrentLocation.z = Config.Locations["stores"][location].coords.z
-        CreateZone("stores", location)
+        CurrentLocation.store = Config.Locations['stores'][location].name
+        CurrentLocation.x = Config.Locations['stores'][location].coords.x
+        CurrentLocation.y = Config.Locations['stores'][location].coords.y
+        CurrentLocation.z = Config.Locations['stores'][location].coords.z
+        CreateZone('stores', location)
 
         CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
         SetBlipColour(CurrentBlip, 3)
         SetBlipRoute(CurrentBlip, true)
         SetBlipRouteColour(CurrentBlip, 3)
     else
-        QBCore.Functions.Notify(Lang:t("success.payslip_time"))
+        lib.notify({ title = 'Payslip Time', description = Lang:t("success.payslip_time"), type = 'success' })
         if CurrentBlip ~= nil then
             RemoveBlip(CurrentBlip)
             ClearAllBlipRoutes()
@@ -259,28 +228,28 @@ local function getNewLocation()
 end
 
 local function CreateElements()
-    TruckVehBlip = AddBlipForCoord(Config.Locations["vehicle"].coords.x, Config.Locations["vehicle"].coords.y, Config.Locations["vehicle"].coords.z)
+    TruckVehBlip = AddBlipForCoord(Config.Locations['vehicle'].coords.x, Config.Locations['vehicle'].coords.y, Config.Locations['vehicle'].coords.z)
     SetBlipSprite(TruckVehBlip, 326)
     SetBlipDisplay(TruckVehBlip, 4)
     SetBlipScale(TruckVehBlip, 0.6)
     SetBlipAsShortRange(TruckVehBlip, true)
     SetBlipColour(TruckVehBlip, 5)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentSubstringPlayerName(Config.Locations["vehicle"].label)
+    AddTextComponentSubstringPlayerName(Config.Locations['vehicle'].label)
     EndTextCommandSetBlipName(TruckVehBlip)
 
-    TruckerBlip = AddBlipForCoord(Config.Locations["main"].coords.x, Config.Locations["main"].coords.y, Config.Locations["main"].coords.z)
+    TruckerBlip = AddBlipForCoord(Config.Locations['main'].coords.x, Config.Locations['main'].coords.y, Config.Locations['main'].coords.z)
     SetBlipSprite(TruckerBlip, 479)
     SetBlipDisplay(TruckerBlip, 4)
     SetBlipScale(TruckerBlip, 0.6)
     SetBlipAsShortRange(TruckerBlip, true)
     SetBlipColour(TruckerBlip, 5)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentSubstringPlayerName(Config.Locations["main"].label)
+    AddTextComponentSubstringPlayerName(Config.Locations['main'].label)
     EndTextCommandSetBlipName(TruckerBlip)
 
-    CreateZone("main")
-    CreateZone("vehicle")
+    CreateZone('main')
+    CreateZone('vehicle')
 end
 
 local function BackDoorsOpen(vehicle) -- This is hardcoded for the rumpo currently
@@ -288,43 +257,48 @@ local function BackDoorsOpen(vehicle) -- This is hardcoded for the rumpo current
 end
 
 local function GetInTrunk()
-    local ped = PlayerPedId()
-    if IsPedInAnyVehicle(ped, false) then
-        return QBCore.Functions.Notify(Lang:t("error.get_out_vehicle"), "error")
+    if IsPedInAnyVehicle(cache.ped, false) then
+        return lib.notify({ title = 'Get Out Vehicle', description = Lang:t("error.get_out_vehicle"), type = 'error' })
     end
-    local pos = GetEntityCoords(ped, true)
-    local vehicle = GetVehiclePedIsIn(ped, true)
+    local pos = GetEntityCoords(cache.ped, true)
+    local vehicle = GetVehiclePedIsIn(cache.ped, true)
     if not isTruckerVehicle(vehicle) or CurrentPlate ~= QBCore.Functions.GetPlate(vehicle) then
-        return QBCore.Functions.Notify(Lang:t("error.vehicle_not_correct"), "error")
+        return lib.notify({ title = 'Vehicle Not Correct', description = Lang:t("error.vehicle_not_correct"), type = 'error' })
     end
     if not BackDoorsOpen(vehicle) then
-        return QBCore.Functions.Notify(Lang:t("error.backdoors_not_open"), "error")
+        return lib.notify({ title = 'Backdoors Not Open', description = Lang:t("error.backdoors_not_open"), type = 'error' })
     end
     local trunkpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
     if #(pos - vector3(trunkpos.x, trunkpos.y, trunkpos.z)) > 1.5 then
-        return QBCore.Functions.Notify(Lang:t("error.too_far_from_trunk"), "error")
+        return lib.notify({ title = 'Too Far From Trunk', description = Lang:t("error.too_far_from_trunk"), type = 'error' })
     end
     if isWorking then return end
     isWorking = true
-    QBCore.Functions.Progressbar("work_carrybox", Lang:t("mission.take_box"), 2000, false, true, {
-        disableMovement = true,
-        disableCarMovement = true,
-        disableMouse = false,
-        disableCombat = true,
-    }, {
-        animDict = "anim@gangops@facility@servers@",
-        anim = "hotwire",
-        flags = 16,
-    }, {}, {}, function() -- Done
+    if lib.progressCircle({
+        duration = 2000,
+        position = 'bottom',
+        useWhileDead = false,
+        canCancel = true,
+        disable = {
+            car = true,
+            mouse = false,
+            combat = true,
+            move = true,
+        },
+        anim = {
+            dict = 'anim@gangops@facility@servers@',
+            clip = 'hotwire'
+        },
+    }) then
         isWorking = false
-        StopAnimTask(ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
+        StopAnimTask(cache.ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
         TriggerEvent('animations:client:EmoteCommandStart', {"box"})
         hasBox = true
-    end, function() -- Cancel
+    else
         isWorking = false
-        StopAnimTask(ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
-        QBCore.Functions.Notify(Lang:t("error.cancelled"), "error")
-    end)
+        StopAnimTask(cache.ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
+        lib.notify({ title = 'Cancelled', description = Lang:t("error.cancelled"), type = 'error' })
+    end
 end
 
 local function Deliver()
@@ -332,14 +306,20 @@ local function Deliver()
     TriggerEvent('animations:client:EmoteCommandStart', {"c"})
     Wait(500)
     TriggerEvent('animations:client:EmoteCommandStart', {"bumbin"})
-    QBCore.Functions.Progressbar("work_dropbox", Lang:t("mission.deliver_box"), 2000, false, true, {
-        disableMovement = true,
-        disableCarMovement = true,
-        disableMouse = false,
-        disableCombat = true,
-    }, {}, {}, {}, function() -- Done
+    if lib.progressCircle({
+        duration = 2000,
+        position = 'bottom',
+        useWhileDead = false,
+        canCancel = true,
+        disable = {
+            car = true,
+            mouse = false,
+            combat = true,
+            move = true,
+        },
+    }) then
         isWorking = false
-        ClearPedTasks(PlayerPedId())
+        ClearPedTasks(cache.ped)
         hasBox = false
         currentCount = currentCount + 1
         if currentCount == CurrentLocation.dropcount then
@@ -354,38 +334,38 @@ local function Deliver()
                 ClearAllBlipRoutes()
                 CurrentBlip = nil
             end
-            CurrentLocation.zoneCombo:destroy()
+            CurrentLocation.zoneCombo:remove()
             CurrentLocation = nil
             currentCount = 0
             JobsDone = JobsDone + 1
             if JobsDone == Config.MaxDrops then
-                QBCore.Functions.Notify(Lang:t("mission.return_to_station"))
+                lib.notify({ title = 'Return To Station', description = Lang:t("mission.return_to_station"), type = 'inform' })
                 returnToStation()
             else
-                QBCore.Functions.Notify(Lang:t("mission.goto_next_point"))
+                lib.notify({ title = 'Goto Next Point', description = Lang:t("mission.goto_next_point"), type = 'inform' })
                 getNewLocation()
             end
+        elseif currentCount ~= CurrentLocation.dropcount then
+            lib.notify({ title = 'Another Box', description = Lang:t("mission.another_box"), type = 'inform' })
         else
-            QBCore.Functions.Notify(Lang:t("mission.another_box"))
+            isWorking = false
+            ClearPedTasks(cache.ped)
+            lib.notify({ title = 'Cancelled', description = Lang:t("error.cancelled"), type = 'error' })
         end
-    end, function() -- Cancel
-        isWorking = false
-        ClearPedTasks(PlayerPedId())
-        QBCore.Functions.Notify(Lang:t("error.cancelled"), "error")
-    end)
+    end
 end
 
 -- Events
 
 AddEventHandler('onResourceStart', function(resource)
-    if resource ~= GetCurrentResourceName() then return end
+    if not resource == GetCurrentResourceName() then return end
     PlayerJob = QBCore.Functions.GetPlayerData().job
     CurrentLocation = nil
     CurrentBlip = nil
     hasBox = false
     isWorking = false
     JobsDone = 0
-    if PlayerJob.name ~= "trucker" then return end
+    if not PlayerJob.name == 'trucker' then return end
     CreateElements()
 end)
 
@@ -396,7 +376,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     hasBox = false
     isWorking = false
     JobsDone = 0
-    if PlayerJob.name ~= "trucker" then return end
+    if not PlayerJob.name == 'trucker' then return end
     CreateElements()
 end)
 
@@ -412,20 +392,20 @@ end)
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     local OldPlayerJob = PlayerJob.name
     PlayerJob = JobInfo
-    if OldPlayerJob == "trucker" then
+    if OldPlayerJob == 'trucker' then
         RemoveTruckerBlips()
-        zoneCombo:destroy()
+        zoneCombo:remove()
         exports['qb-core']:HideText()
         Delivering = false
         showMarker = false
-    elseif PlayerJob.name == "trucker" then
+    elseif PlayerJob.name == 'trucker' then
         CreateElements()
     end
 end)
 
 RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
     local vehicleInfo = selectedVeh
-    local coords = Config.Locations["vehicle"].coords
+    local coords = Config.Locations['vehicle'].coords
     QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
         local veh = NetToVeh(netId)
         SetVehicleNumberPlateText(veh, "TRUK"..tostring(math.random(1000, 9999)))
@@ -433,11 +413,10 @@ RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
         SetVehicleLivery(veh, 1)
         SetVehicleColours(veh, 122, 122)
         exports['LegacyFuel']:SetFuel(veh, 100.0)
-        exports['qb-menu']:closeMenu()
-        TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
+        TaskWarpPedIntoVehicle(cache.ped, veh, -1)
         SetEntityAsMissionEntity(veh, true, true)
         TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
-        SetVehicleEngineOn(veh, true, true)
+        SetVehicleEngineOn(veh, true, true, false)
         CurrentPlate = QBCore.Functions.GetPlate(veh)
         getNewLocation()
     end, vehicleInfo, coords, true)
@@ -450,10 +429,10 @@ RegisterNetEvent('qb-trucker:client:TakeOutVehicle', function(data)
 end)
 
 RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
-    if IsPedInAnyVehicle(PlayerPedId()) and isTruckerVehicle(GetVehiclePedIsIn(PlayerPedId(), false)) then
-        if GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId()), -1) == PlayerPedId() then
-            if isTruckerVehicle(GetVehiclePedIsIn(PlayerPedId(), false)) then
-                DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
+    if IsPedInAnyVehicle(cache.ped, false) and isTruckerVehicle(GetVehiclePedIsIn(cache.ped, false)) then
+        if GetPedInVehicleSeat(GetVehiclePedIsIn(cache.ped, false), -1) == cache.ped then
+            if isTruckerVehicle(GetVehiclePedIsIn(cache.ped, false)) then
+                DeleteVehicle(GetVehiclePedIsIn(cache.ped, false))
                 TriggerServerEvent('qb-trucker:server:DoBail', false)
                 if CurrentBlip ~= nil then
                     RemoveBlip(CurrentBlip)
@@ -463,13 +442,13 @@ RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
                 if returningToStation or CurrentLocation then
                     ClearAllBlipRoutes()
                     returningToStation = false
-                    QBCore.Functions.Notify(Lang:t("mission.job_completed"), "success")
+                    lib.notify({ title = 'Job Completed', description = Lang:t("mission.job_completed"), type = 'success' })
                 end
             else
-                QBCore.Functions.Notify(Lang:t("error.vehicle_not_correct"), 'error')
+                lib.notify({ title = 'Vehicle Not Correct', description = Lang:t("error.vehicle_not_correct"), type = 'error' })
             end
         else
-            QBCore.Functions.Notify(Lang:t("error.no_driver"))
+            lib.notify({ title = 'No Driver', description = Lang:t("error.no_driver"), type = 'error' })
         end
     else
         MenuGarage()
@@ -480,7 +459,7 @@ RegisterNetEvent('qb-truckerjob:client:PaySlip', function()
     if JobsDone > 0 then
         TriggerServerEvent("qb-trucker:server:01101110", JobsDone)
         JobsDone = 0
-        if #LocationsDone == #Config.Locations["stores"] then
+        if #LocationsDone == #Config.Locations['stores'] then
             LocationsDone = {}
         end
         if CurrentBlip ~= nil then
@@ -489,7 +468,7 @@ RegisterNetEvent('qb-truckerjob:client:PaySlip', function()
             CurrentBlip = nil
         end
     else
-        QBCore.Functions.Notify(Lang:t("error.no_work_done"), "error")
+        lib.notify({ title = 'No Work Done', description = Lang:t("error.no_work_done"), type = 'error' })
     end
 end)
 
@@ -500,7 +479,7 @@ CreateThread(function()
     while true do
         sleep = 1000
         if showMarker then
-            DrawMarker(2, markerLocation.x, markerLocation.y, markerLocation.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, false, true, false, false, false)
+            DrawMarker(2, markerLocation.x, markerLocation.y, markerLocation.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, 0, true, nil, nil, false)
             sleep = 0
         end
         if Delivering then
@@ -508,10 +487,10 @@ CreateThread(function()
                 if not hasBox then
                     GetInTrunk()
                 else
-                    if #(GetEntityCoords(PlayerPedId()) - markerLocation) < 5 then
+                    if #(GetEntityCoords(cache.ped) - markerLocation) < 5 then
                         Deliver()
                     else
-                        QBCore.Functions.Notify(Lang:t("error.too_far_from_delivery"), "error")
+                        lib.notify({ title = 'Too Far From Delivery', description = Lang:t("error.too_far_from_delivery"), type = 'error' })
                     end
                 end
             end
