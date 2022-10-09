@@ -17,7 +17,6 @@ local markerLocation
 local zoneCombo = nil
 local returningToStation = false
 
-
 -- Functions
 
 local function returnToStation()
