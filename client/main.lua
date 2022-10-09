@@ -155,6 +155,8 @@ local function CreateZone(type, number)
                     TriggerEvent('qb-truckerjob:client:PaySlip')
                 elseif type == 'vehicle' then
                     TriggerEvent('qb-truckerjob:client:Vehicle')
+                    markerLocation = coords
+                    ShowMarker(true)
                 elseif type == 'stores' then
                     markerLocation = coords
                     lib.notify({ title = 'Store Reached', description = Lang:t("mission.store_reached"), type = 'inform' })
@@ -163,7 +165,9 @@ local function CreateZone(type, number)
                 end
             end
             local function exitZone()
-                if type == 'stores' then
+                if type == 'vehicle' then
+                    ShowMarker(false)
+                elseif type == 'stores' then
                     ShowMarker(false)
                     SetDelivering(false)
                 end
@@ -177,24 +181,7 @@ local function CreateZone(type, number)
                 onEnter = enterZone,
                 onExit = exitZone
             })
-            if type == 'vehicle' then
-                local function enterStoreZone()
-                    markerLocation = coords
-                    ShowMarker(true)
-                end
-                local function exitStoreZone()
-                    ShowMarker(false)
-                end
-                local zonedel = lib.zones.box({
-                    name = boxName,
-                    coords = coords,
-                    size = vector3(40.0, 40.0, 5.0),
-                    rotation = heading,
-                    debug = false,
-                    onEnter = enterStoreZone,
-                    onExit = exitStoreZone
-                })
-            elseif type == 'stores' then
+            if type == 'stores' then
                 CurrentLocation.zoneCombo = boxZones
             end
         end)
