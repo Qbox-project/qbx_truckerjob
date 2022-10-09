@@ -54,7 +54,7 @@ RegisterNetEvent('qb-trucker:server:01101110', function(drops)
     local payment = price - taxAmount
     Player.Functions.AddJobReputation(drops)
     Player.Functions.AddMoney("bank", payment, "trucker-salary")
-    TriggerClientEvent('ox_lib:notify', src, { title = 'You Earned', 
+    TriggerClientEvent('ox_lib:notify', src, { title = 'You Earned',
     description = Lang:t("success.you_earned", {value = payment}), duration = 5000, type = 'success'})
 
 end)
