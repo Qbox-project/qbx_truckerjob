@@ -143,36 +143,34 @@ local function CreateZone(type, number)
             }
         })
     else
-        local function enterZone()
-            if type == 'main' then
-                TriggerEvent('qb-truckerjob:client:PaySlip')
-            elseif type == 'vehicle' then
-                TriggerEvent('qb-truckerjob:client:Vehicle')
-                markerLocation = coords
-                ShowMarker(true)
-            elseif type == 'stores' then
-                markerLocation = coords
-                lib.notify({ title = 'Store Reached', description = Lang:t("mission.store_reached"), duration = 5000, type = 'inform' })
-                ShowMarker(true)
-                SetDelivering(true)
-            end
-        end
-        local function exitZone()
-            if type == 'vehicle' then
-                ShowMarker(false)
-            elseif type == 'stores' then
-                ShowMarker(false)
-                SetDelivering(false)
-            end
-        end
         local boxZones = lib.zones.box({
             name = boxName,
             coords = coords,
             size = size,
             rotation = rotation,
             debug = debug,
-            onEnter = enterZone,
-            onExit = exitZone
+            onEnter = function()
+                if type == 'main' then
+                    TriggerEvent('qb-truckerjob:client:PaySlip')
+                elseif type == 'vehicle' then
+                    TriggerEvent('qb-truckerjob:client:Vehicle')
+                    markerLocation = coords
+                    ShowMarker(true)
+                elseif type == 'stores' then
+                    markerLocation = coords
+                    lib.notify({ title = 'Store Reached', description = Lang:t("mission.store_reached"), duration = 5000, type = 'inform' })
+                    ShowMarker(true)
+                    SetDelivering(true)
+                end
+            end,
+            onExit = function()
+                if type == 'vehicle' then
+                    ShowMarker(false)
+                elseif type == 'stores' then
+                    ShowMarker(false)
+                    SetDelivering(false)
+                end
+            end
         })
         if type == 'stores' then
             CurrentLocation.zoneCombo = boxZones
