@@ -71,7 +71,7 @@ local function RemoveTruckerBlips()
     end
 end
 
-local function MenuGarage()
+local function OpenMenuGarage()
     local truckMenu = {}
     for k in pairs(Config.Vehicles) do
         truckMenu[#truckMenu + 1] = {
@@ -143,42 +143,40 @@ local function CreateZone(type, number)
             }
         })
     else
-        CreateThread(function()
-            local function enterZone()
-                if type == 'main' then
-                    TriggerEvent('qb-truckerjob:client:PaySlip')
-                elseif type == 'vehicle' then
-                    TriggerEvent('qb-truckerjob:client:Vehicle')
-                    markerLocation = coords
-                    ShowMarker(true)
-                elseif type == 'stores' then
-                    markerLocation = coords
-                    lib.notify({ title = 'Store Reached', description = Lang:t("mission.store_reached"), duration = 5000, type = 'inform' })
-                    ShowMarker(true)
-                    SetDelivering(true)
-                end
+        local function enterZone()
+            if type == 'main' then
+                TriggerEvent('qb-truckerjob:client:PaySlip')
+            elseif type == 'vehicle' then
+                TriggerEvent('qb-truckerjob:client:Vehicle')
+                markerLocation = coords
+                ShowMarker(true)
+            elseif type == 'stores' then
+                markerLocation = coords
+                lib.notify({ title = 'Store Reached', description = Lang:t("mission.store_reached"), duration = 5000, type = 'inform' })
+                ShowMarker(true)
+                SetDelivering(true)
             end
-            local function exitZone()
-                if type == 'vehicle' then
-                    ShowMarker(false)
-                elseif type == 'stores' then
-                    ShowMarker(false)
-                    SetDelivering(false)
-                end
+        end
+        local function exitZone()
+            if type == 'vehicle' then
+                ShowMarker(false)
+            elseif type == 'stores' then
+                ShowMarker(false)
+                SetDelivering(false)
             end
-            local boxZones = lib.zones.box({
-                name = boxName,
-                coords = coords,
-                size = size,
-                rotation = rotation,
-                debug = debug,
-                onEnter = enterZone,
-                onExit = exitZone
-            })
-            if type == 'stores' then
-                CurrentLocation.zoneCombo = boxZones
-            end
-        end)
+        end
+        local boxZones = lib.zones.box({
+            name = boxName,
+            coords = coords,
+            size = size,
+            rotation = rotation,
+            debug = debug,
+            onEnter = enterZone,
+            onExit = exitZone
+        })
+        if type == 'stores' then
+            CurrentLocation.zoneCombo = boxZones
+        end
     end
 end
 
@@ -433,7 +431,7 @@ RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
             lib.notify({ title = 'No Driver', description = Lang:t("error.no_driver"), duration = 5000, type = 'error' })
         end
     else
-        MenuGarage()
+        OpenMenuGarage()
     end
 end)
 
