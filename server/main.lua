@@ -64,3 +64,15 @@ RegisterNetEvent('qb-trucker:server:nano', function()
     Player.Functions.AddItem("cryptostick", 1, false)
     TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["cryptostick"], "add")
 end)
+
+lib.callback.register('qb-trucker:server:spawnVehicle', function(source, model)
+    local netId = QBCore.Functions.CreateVehicle(source, model, vec4(Config.Locations['vehicle'].coords.x, Config.Locations['vehicle'].coords.y, Config.Locations['vehicle'].coords.z, Config.Locations['vehicle'].rotation), true)
+    if not netId or netId == 0 then return end
+    local veh = NetworkGetEntityFromNetworkId(netId)
+    if not veh or veh == 0 then return end
+
+    local plate = "TRUK"..tostring(math.random(1000, 9999))
+    SetVehicleNumberPlateText(veh, plate)
+    TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
+    return netId
+end)
