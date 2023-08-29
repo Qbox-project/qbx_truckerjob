@@ -74,5 +74,5 @@ lib.callback.register('qb-trucker:server:spawnVehicle', function(source, model)
     local plate = "TRUK"..tostring(math.random(1000, 9999))
     SetVehicleNumberPlateText(veh, plate)
     TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
-    return netId
+    return netId, plate
 end)
