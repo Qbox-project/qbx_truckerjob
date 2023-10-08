@@ -296,7 +296,7 @@ local function Deliver()
         isWorking = false
         ClearPedTasks(cache.ped)
         hasBox = false
-        currentCount = currentCount + 1
+        currentCount += 1
         if currentCount == CurrentLocation.dropcount then
             LocationsDone[#LocationsDone+1] = CurrentLocation.id
             TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
@@ -310,7 +310,7 @@ local function Deliver()
             CurrentLocation.zoneCombo:remove()
             CurrentLocation = nil
             currentCount = 0
-            JobsDone = JobsDone + 1
+            JobsDone += 1
             if JobsDone == Config.MaxDrops then
                 lib.notify({ title = 'Return To Station', description = Lang:t("mission.return_to_station"), duration = 5000, type = 'inform' })
                 returnToStation()
