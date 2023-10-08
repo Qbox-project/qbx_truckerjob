@@ -133,7 +133,7 @@ local function CreateZone(type, number)
             options = {
                 {
                     name = boxName,
-                    event = 'qbx_truckerjobjob:client:PaySlip',
+                    event = 'qbx_truckerjob:client:PaySlip',
                     icon = icon,
                     label = boxName,
                     distance = 2,
@@ -149,9 +149,9 @@ local function CreateZone(type, number)
             debug = debug,
             onEnter = function()
                 if type == 'main' then
-                    TriggerEvent('qbx_truckerjobjob:client:PaySlip')
+                    TriggerEvent('qbx_truckerjob:client:PaySlip')
                 elseif type == 'vehicle' then
-                    TriggerEvent('qbx_truckerjobjob:client:Vehicle')
+                    TriggerEvent('qbx_truckerjob:client:Vehicle')
                     markerLocation = coords
                     ShowMarker(true)
                 elseif type == 'stores' then
@@ -389,7 +389,7 @@ RegisterNetEvent('qbx_truckerjob:client:TakeOutVehicle', function(data)
     selectedVeh = vehicleInfo
 end)
 
-RegisterNetEvent('qbx_truckerjobjob:client:Vehicle', function()
+RegisterNetEvent('qbx_truckerjob:client:Vehicle', function()
     if IsPedInAnyVehicle(cache.ped, false) and isTruckerVehicle(GetVehiclePedIsIn(cache.ped, false)) then
         if GetPedInVehicleSeat(GetVehiclePedIsIn(cache.ped, false), -1) == cache.ped then
             if isTruckerVehicle(GetVehiclePedIsIn(cache.ped, false)) then
@@ -416,7 +416,7 @@ RegisterNetEvent('qbx_truckerjobjob:client:Vehicle', function()
     end
 end)
 
-RegisterNetEvent('qbx_truckerjobjob:client:PaySlip', function()
+RegisterNetEvent('qbx_truckerjob:client:PaySlip', function()
     if JobsDone > 0 then
         TriggerServerEvent("qbx_truckerjob:server:getPaid")
         JobsDone = 0
