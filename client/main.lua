@@ -1,5 +1,3 @@
-local QBCore = exports['qbx-core']:GetCoreObject()
-local PlayerJob = {}
 local JobsDone = 0
 local LocationsDone = {}
 local CurrentLocation = nil
@@ -76,7 +74,7 @@ local function OpenMenuGarage()
     for k in pairs(Config.Vehicles) do
         truckMenu[#truckMenu + 1] = {
             title = Config.Vehicles[k],
-            event = "qb-trucker:client:TakeOutVehicle",
+            event = "qbx_truckerjob:client:TakeOutVehicle",
             args = {
                 vehicle = k
             }
@@ -91,12 +89,12 @@ local function OpenMenuGarage()
 end
 
 local function SetDelivering(active)
-    if PlayerJob.name ~= 'trucker' then return end
+    if QBX.PlayerData.job.name ~= 'trucker' then return end
     Delivering = active
 end
 
 local function ShowMarker(active)
-    if PlayerJob.name ~= 'trucker' then return end
+    if QBX.PlayerData.job.name ~= 'trucker' then return end
     showMarker = active
 end
 
@@ -135,7 +133,7 @@ local function CreateZone(type, number)
             options = {
                 {
                     name = boxName,
-                    event = 'qb-truckerjob:client:PaySlip',
+                    event = 'qbx_truckerjobjob:client:PaySlip',
                     icon = icon,
                     label = boxName,
                     distance = 2,
@@ -151,9 +149,9 @@ local function CreateZone(type, number)
             debug = debug,
             onEnter = function()
                 if type == 'main' then
-                    TriggerEvent('qb-truckerjob:client:PaySlip')
+                    TriggerEvent('qbx_truckerjobjob:client:PaySlip')
                 elseif type == 'vehicle' then
-                    TriggerEvent('qb-truckerjob:client:Vehicle')
+                    TriggerEvent('qbx_truckerjobjob:client:Vehicle')
                     markerLocation = coords
                     ShowMarker(true)
                 elseif type == 'stores' then
@@ -230,7 +228,7 @@ local function CreateElements()
 end
 
 local function BackDoorsOpen(vehicle) -- This is hardcoded for the rumpo currently
-    return GetVehicleDoorAngleRatio(vehicle, 2) > 0.0 and GetVehicleDoorAngleRatio(vehicle, 3) > 0.0
+    return GetVehicleDoorAngleRatio(vehicle, 5) > 0.0 or GetVehicleDoorAngleRatio(vehicle, 2) > 0.0 and GetVehicleDoorAngleRatio(vehicle, 3) > 0.0
 end
 
 local function GetInTrunk()
@@ -239,7 +237,7 @@ local function GetInTrunk()
     end
     local pos = GetEntityCoords(cache.ped, true)
     local vehicle = GetVehiclePedIsIn(cache.ped, true)
-    if not isTruckerVehicle(vehicle) or CurrentPlate ~= QBCore.Functions.GetPlate(vehicle) then
+    if not isTruckerVehicle(vehicle) or CurrentPlate ~= GetPlate(vehicle) then
         return lib.notify({ title = 'Vehicle Not Correct', description = Lang:t("error.vehicle_not_correct"), duration = 5000, type = 'error' })
     end
     if not BackDoorsOpen(vehicle) then
@@ -302,10 +300,8 @@ local function Deliver()
         if currentCount == CurrentLocation.dropcount then
             LocationsDone[#LocationsDone+1] = CurrentLocation.id
             TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
-            exports['qbx-core']:HideText()
             Delivering = false
             showMarker = false
-            TriggerServerEvent('qb-trucker:server:nano')
             if CurrentBlip ~= nil then
                 RemoveBlip(CurrentBlip)
                 ClearAllBlipRoutes()
@@ -319,8 +315,10 @@ local function Deliver()
                 lib.notify({ title = 'Return To Station', description = Lang:t("mission.return_to_station"), duration = 5000, type = 'inform' })
                 returnToStation()
             else
+                TriggerServerEvent("qbx_truckerjob:server:doneJob")
                 lib.notify({ title = 'Goto Next Point', description = Lang:t("mission.goto_next_point"), duration = 5000, type = 'inform' })
                 getNewLocation()
+
             end
         elseif currentCount ~= CurrentLocation.dropcount then
             lib.notify({ title = 'Another Box', description = Lang:t("mission.another_box"), duration = 5000, type = 'inform' })
@@ -336,24 +334,22 @@ end
 
 AddEventHandler('onResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then return end
-    PlayerJob = QBCore.Functions.GetPlayerData().job
     CurrentLocation = nil
     CurrentBlip = nil
     hasBox = false
     isWorking = false
     JobsDone = 0
-    if PlayerJob.name ~= 'trucker' then return end
+    if QBX.PlayerData.job.name ~= 'trucker' then return end
     CreateElements()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    PlayerJob = QBCore.Functions.GetPlayerData().job
     CurrentLocation = nil
     CurrentBlip = nil
     hasBox = false
     isWorking = false
     JobsDone = 0
-    if PlayerJob.name ~= 'trucker' then return end
+    if QBX.PlayerData.job.name ~= 'trucker' then return end
     CreateElements()
 end)
 
@@ -367,42 +363,38 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
 end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
-    local OldPlayerJob = PlayerJob.name
-    PlayerJob = JobInfo
-    if OldPlayerJob == 'trucker' then
-        RemoveTruckerBlips()
-        zoneCombo:remove()
-        exports['qbx-core']:HideText()
-        Delivering = false
-        showMarker = false
-    elseif PlayerJob.name == 'trucker' then
-        CreateElements()
-    end
+    RemoveTruckerBlips()
+    zoneCombo:remove()
+    Delivering = false
+    showMarker = false
+    
+    if QBX.PlayerData.job.name ~= 'trucker' then return end
+    CreateElements()
 end)
 
-RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
-    local netId, plate = lib.callback.await('qb-trucker:server:spawnVehicle', false, selectedVeh)
+RegisterNetEvent('qbx_truckerjob:client:SpawnVehicle', function()
+    local netId, plate = lib.callback.await('qbx_truckerjob:server:spawnVehicle', false, selectedVeh)
     local veh = NetToVeh(netId)
     SetVehicleNumberPlateText(veh, plate)
     SetVehicleLivery(veh, 1)
     SetVehicleColours(veh, 122, 122)
     SetVehicleEngineOn(veh, true, true, false)
-    CurrentPlate = QBCore.Functions.GetPlate(veh)
+    CurrentPlate = GetPlate(veh)
     getNewLocation()
 end)
 
-RegisterNetEvent('qb-trucker:client:TakeOutVehicle', function(data)
+RegisterNetEvent('qbx_truckerjob:client:TakeOutVehicle', function(data)
     local vehicleInfo = data.vehicle
-    TriggerServerEvent('qb-trucker:server:DoBail', true, vehicleInfo)
+    TriggerServerEvent('qbx_truckerjob:server:DoBail', true, vehicleInfo)
     selectedVeh = vehicleInfo
 end)
 
-RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
+RegisterNetEvent('qbx_truckerjobjob:client:Vehicle', function()
     if IsPedInAnyVehicle(cache.ped, false) and isTruckerVehicle(GetVehiclePedIsIn(cache.ped, false)) then
         if GetPedInVehicleSeat(GetVehiclePedIsIn(cache.ped, false), -1) == cache.ped then
             if isTruckerVehicle(GetVehiclePedIsIn(cache.ped, false)) then
                 DeleteVehicle(GetVehiclePedIsIn(cache.ped, false))
-                TriggerServerEvent('qb-trucker:server:DoBail', false)
+                TriggerServerEvent('qbx_truckerjob:server:DoBail', false)
                 if CurrentBlip ~= nil then
                     RemoveBlip(CurrentBlip)
                     ClearAllBlipRoutes()
@@ -424,9 +416,9 @@ RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
     end
 end)
 
-RegisterNetEvent('qb-truckerjob:client:PaySlip', function()
+RegisterNetEvent('qbx_truckerjobjob:client:PaySlip', function()
     if JobsDone > 0 then
-        TriggerServerEvent("qb-trucker:server:01101110", JobsDone)
+        TriggerServerEvent("qbx_truckerjob:server:getPaid")
         JobsDone = 0
         if #LocationsDone == #Config.Locations['stores'] then
             LocationsDone = {}

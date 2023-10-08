@@ -1,39 +1,55 @@
-local QBCore = exports['qbx-core']:GetCoreObject()
-local PaymentTax = 15
 local Bail = {}
+local currentTruckers = {}
 
-RegisterNetEvent('qb-trucker:server:DoBail', function(bool, vehInfo)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+RegisterNetEvent('qbx_truckerjob:server:DoBail', function(bool, vehInfo)
+    local client = source
+    local Player = exports.qbx_core:GetPlayer(client)
     if not Player then return end
     if bool then
         if Player.PlayerData.money.cash >= Config.BailPrice then
             Bail[Player.PlayerData.citizenid] = Config.BailPrice
             Player.Functions.RemoveMoney('cash', Config.BailPrice, "tow-received-bail")
-            TriggerClientEvent('ox_lib:notify', src, { title = 'Paid With Cash', description = Lang:t("success.paid_with_cash", {value = Config.BailPrice}), duration = 5000, type = 'success'})
-            TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
+
+            exports.qbx_core:Notify(client, Lang:t("success.paid_with_cash", {value = Config.BailPrice}), "success")
+            TriggerClientEvent('qbx_truckerjob:client:SpawnVehicle', client, vehInfo)
         elseif Player.PlayerData.money.bank >= Config.BailPrice then
             Bail[Player.PlayerData.citizenid] = Config.BailPrice
             Player.Functions.RemoveMoney('bank', Config.BailPrice, "tow-received-bail")
-            TriggerClientEvent('ox_lib:notify', src, { title = 'Paid With Bank', description = Lang:t("success.paid_with_bank", {value = Config.BailPrice}), duration = 5000, type = 'success'})
-            TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
+            exports.qbx_core:Notify(client, Lang:t("success.paid_with_bank", {value = Config.BailPrice}), "success")
+
+            TriggerClientEvent('qbx_truckerjob:client:SpawnVehicle', client, vehInfo)
         else
-            TriggerClientEvent('ox_lib:notify', src, { title = 'No Deposit', description = Lang:t("error.no_deposit", {value = Config.BailPrice}), duration = 5000, type = 'error'})
+            exports.qbx_core:Notify(client, Lang:t("error.no_deposit", {value = Config.BailPrice}), "error")
         end
     else
         if Bail[Player.PlayerData.citizenid] then
             Player.Functions.AddMoney('cash', Bail[Player.PlayerData.citizenid], "trucker-bail-paid")
             Bail[Player.PlayerData.citizenid] = nil
-            TriggerClientEvent('ox_lib:notify', src, { title = 'Refund To Cash', description = Lang:t("success.refund_to_cash", {value = Config.BailPrice}), duration = 5000, type = 'success'})
+
+            exports.qbx_core:Notify(client, Lang:t("success.refund_to_cash", {value = Config.BailPrice}), "success")
         end
     end
 end)
 
-RegisterNetEvent('qb-trucker:server:01101110', function(drops)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+RegisterNetEvent("qbx_truckerjob:server:doneJob", function ()
+    local client = source
+    local Player = exports.qbx_core:GetPlayer(client)
     if not Player then return end
-    drops = tonumber(drops)
+    if Player.PlayerData.job.name ~= "trucker" then return end
+    currentTruckers[client] = (currentTruckers[client] or 0 ) + 1
+    local chance = math.random(1, 100)
+    if chance > 26 then return end
+    Player.Functions.AddItem("cryptostick", 1, false)
+end)
+
+RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
+    local client = source
+    if not currentTruckers[client] or currentTruckers[client] == 0 then return end
+    local Player = exports.qbx_core:GetPlayer(client)
+    if not Player then return end
+    if Player.PlayerData.job.name ~= "trucker" then return DropPlayer(client, locale('exploit_attempt')) end
+    local drops = currentTruckers[client]
+    currentTruckers[client] = nil
     local bonus = 0
     local DropPrice = math.random(100, 120)
 
@@ -48,25 +64,15 @@ RegisterNetEvent('qb-trucker:server:01101110', function(drops)
     end
 
     local price = (DropPrice * drops) + bonus
-    local taxAmount = math.ceil((price / 100) * PaymentTax)
+    local taxAmount = math.ceil((price / 100) * Config.PaymentTax)
     local payment = price - taxAmount
     Player.Functions.AddJobReputation(drops)
     Player.Functions.AddMoney("bank", payment, "trucker-salary")
-    TriggerClientEvent('ox_lib:notify', src, { title = 'You Earned', description = Lang:t("success.you_earned", {value = payment}), duration = 5000, type = 'success'})
+    exports.qbx_core:Notify(client, Lang:t("success.you_earned", {value = payment}), "success")
 end)
 
-RegisterNetEvent('qb-trucker:server:nano', function()
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return end
-    local chance = math.random(1, 100)
-    if chance > 26 then return end
-    Player.Functions.AddItem("cryptostick", 1, false)
-    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["cryptostick"], "add")
-end)
-
-lib.callback.register('qb-trucker:server:spawnVehicle', function(source, model)
-    local netId = QBCore.Functions.CreateVehicle(source, model, vec4(Config.Locations['vehicle'].coords.x, Config.Locations['vehicle'].coords.y, Config.Locations['vehicle'].coords.z, Config.Locations['vehicle'].rotation), true)
+lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, model)
+    local netId = SpawnVehicle(source, model, vec4(Config.Locations['vehicle'].coords.x, Config.Locations['vehicle'].coords.y, Config.Locations['vehicle'].coords.z, Config.Locations['vehicle'].rotation), true)
     if not netId or netId == 0 then return end
     local veh = NetworkGetEntityFromNetworkId(netId)
     if not veh or veh == 0 then return end
@@ -75,4 +81,8 @@ lib.callback.register('qb-trucker:server:spawnVehicle', function(source, model)
     SetVehicleNumberPlateText(veh, plate)
     TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
     return netId, plate
+end)
+
+RegisterNetEvent("QBCore:Server:OnPlayerUnload", function (client)
+    currentTruckers[client] = nil
 end)

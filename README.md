@@ -1,2 +1,2 @@
-# qb-truckerjob
-Trucker Job For QB-Core
+# qbx_truckerjob
+Trucker Job For QBOX

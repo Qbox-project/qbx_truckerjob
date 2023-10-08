@@ -2,22 +2,28 @@ fx_version 'cerulean'
 game 'gta5'
 
 version '1.0.0'
-repository 'https://github.com/QBCore-Remastered/qb-truckerjob'
+repository 'https://github.com/Qbox-project/qbx_truckerjob'
 
 shared_scripts {
 	'config.lua',
-	'@qb-core/shared/locale.lua',
+	'@ox_lib/init.lua',
+    '@qbx_core/import.lua',
+	'@qbx_core/shared/locale.lua',
 	'locales/en.lua',
-	'@ox_lib/init.lua'
 }
 
 server_script 'server/main.lua'
 
 client_script 'client/main.lua'
 
+
+modules {
+    'qbx_core:playerdata',
+    'qbx_core:utils',
+}
+
 dependencies {
-	'ox_lib',
-	'ox_target'
+	'ox_lib'
 }
 
 provide 'qb-truckerjob'
