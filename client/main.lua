@@ -364,12 +364,14 @@ end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
     RemoveTruckerBlips()
-    zoneCombo:remove()
+    if CurrentLocation and CurrentLocation.zoneCombo then
+    CurrentLocation.zoneCombo:remove()
     Delivering = false
     showMarker = false
     
     if QBX.PlayerData.job.name ~= 'trucker' then return end
     CreateElements()
+    end
 end)
 
 RegisterNetEvent('qbx_truckerjob:client:SpawnVehicle', function()
