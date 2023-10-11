@@ -362,7 +362,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     JobsDone = 0
 end)
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function(zoneCombo)
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
     RemoveTruckerBlips()
     zoneCombo:remove()
     Delivering = false
