@@ -12,7 +12,6 @@ local TruckerBlip = nil
 local Delivering = false
 local showMarker = false
 local markerLocation
-local zoneCombo = {}
 local returningToStation = false
 
 -- Functions
