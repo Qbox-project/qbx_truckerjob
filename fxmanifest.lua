@@ -11,7 +11,6 @@ shared_scripts {
 	'@qbx_core/shared/locale.lua',
 	'locales/en.lua',
 	'locales/*.lua',
-	'config.lua',
 }
 
 client_script {
@@ -20,6 +19,11 @@ client_script {
 }
 
 server_script 'server/main.lua'
+
+files {
+	'config/client.lua',
+	'config/shared.lua'
+}
 
 dependencies {
 	'ox_lib'
