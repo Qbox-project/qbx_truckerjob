@@ -31,8 +31,10 @@ local Translations = {
         job_completed = 'Dokončil(a) jste svou trasu, prosím, vyberte si svůj plat'
     },
     info = {
-        deliver_e = '~g~E~w~ - Doručte produkty',
-        deliver = 'Doručte produkty',
+        pickup_paycheck = '[E] - Pick up paycheck',
+        store_vehicle = '[E] - Store the Vehicle',
+        vehicles = '[E] - Vehicles',
+        deliver_to_store = 'Deliver the box to the store'
     }
 }
 

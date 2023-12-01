@@ -3,7 +3,7 @@ local sharedConfig = require 'config.shared'
 local Bail = {}
 local currentTruckers = {}
 
-RegisterNetEvent('qbx_truckerjob:server:DoBail', function(bool, vehInfo)
+RegisterNetEvent('qbx_truckerjob:server:doBail', function(bool, vehInfo)
     local client = source
     local Player = exports.qbx_core:GetPlayer(client)
     if not Player then return end
@@ -13,13 +13,13 @@ RegisterNetEvent('qbx_truckerjob:server:DoBail', function(bool, vehInfo)
             Player.Functions.RemoveMoney('cash', config.bailPrice, "tow-received-bail")
 
             exports.qbx_core:Notify(client, Lang:t("success.paid_with_cash", {value = config.bailPrice}), "success")
-            TriggerClientEvent('qbx_truckerjob:client:SpawnVehicle', client, vehInfo)
+            TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', client, vehInfo)
         elseif Player.PlayerData.money.bank >= config.bailPrice then
             Bail[Player.PlayerData.citizenid] = config.bailPrice
             Player.Functions.RemoveMoney('bank', config.bailPrice, "tow-received-bail")
             exports.qbx_core:Notify(client, Lang:t("success.paid_with_bank", {value = config.bailPrice}), "success")
 
-            TriggerClientEvent('qbx_truckerjob:client:SpawnVehicle', client, vehInfo)
+            TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', client, vehInfo)
         else
             exports.qbx_core:Notify(client, Lang:t("error.no_deposit", {value = config.bailPrice}), "error")
         end

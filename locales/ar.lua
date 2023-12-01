@@ -31,8 +31,10 @@ local Translations = {
         job_completed = 'You Have Completed Your Route, Please Collect Your Pay Cheque'
     },
     info = {
-        deliver_e = '~g~E~w~ - توصيل السلع',
-        deliver = 'توصيل السلع',
+        pickup_paycheck = '[E] - Pick up paycheck',
+        store_vehicle = '[E] - Store the Vehicle',
+        vehicles = '[E] - Vehicles',
+        deliver_to_store = 'Deliver the box to the store'
     }
 }
 

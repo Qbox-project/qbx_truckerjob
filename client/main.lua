@@ -75,7 +75,7 @@ local function OpenMenuGarage()
     for k in pairs(config.vehicles) do
         truckMenu[#truckMenu + 1] = {
             title = config.vehicles[k],
-            event = "qbx_truckerjob:client:TakeOutVehicle",
+            event = "qbx_truckerjob:client:takeOutVehicle",
             args = {
                 vehicle = k
             }
@@ -134,7 +134,7 @@ local function CreateZone(type, number)
             options = {
                 {
                     name = boxName,
-                    event = 'qbx_truckerjob:client:PaySlip',
+                    event = 'qbx_truckerjob:client:paycheck',
                     icon = icon,
                     label = boxName,
                     distance = 2,
@@ -150,9 +150,13 @@ local function CreateZone(type, number)
             debug = debug,
             onEnter = function()
                 if type == 'main' then
-                    TriggerEvent('qbx_truckerjob:client:PaySlip')
+                    lib.showTextUI(Lang:t('info.pickup_paycheck'))
                 elseif type == 'vehicle' then
-                    TriggerEvent('qbx_truckerjob:client:Vehicle')
+                    if cache.vehicle then
+                        lib.showTextUI(Lang:t('info.store_vehicle'))
+                    else
+                        lib.showTextUI(Lang:t('info.vehicles'))
+                    end
                     markerLocation = coords
                     ShowMarker(true)
                 elseif type == 'stores' then
@@ -162,9 +166,23 @@ local function CreateZone(type, number)
                     SetDelivering(true)
                 end
             end,
+            inside = function()
+                if type == 'main' then
+                    if IsControlJustReleased(0, 38) then
+                        TriggerEvent('qbx_truckerjob:client:paycheck')
+                    end
+                elseif type == 'vehicle' then
+                    if IsControlJustReleased(0, 38) then
+                        TriggerEvent('qbx_truckerjob:client:vehicle')
+                    end
+                end
+            end,
             onExit = function()
-                if type == 'vehicle' then
+                if type == 'main' then
+                    lib.hideTextUI()
+                elseif type == 'vehicle' then
                     ShowMarker(false)
+                    lib.hideTextUI()
                 elseif type == 'stores' then
                     ShowMarker(false)
                     SetDelivering(false)
@@ -251,25 +269,26 @@ local function GetInTrunk()
     if isWorking then return end
     isWorking = true
     if lib.progressCircle({
-        duration = 2000,
-        position = 'bottom',
-        useWhileDead = false,
-        canCancel = true,
-        disable = {
-            car = true,
-            mouse = false,
-            combat = true,
-            move = true,
-        },
-        anim = {
-            dict = 'anim@gangops@facility@servers@',
-            clip = 'hotwire'
-        },
-    }) then
+            duration = 2000,
+            position = 'bottom',
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                car = true,
+                mouse = false,
+                combat = true,
+                move = true,
+            },
+            anim = {
+                dict = 'anim@gangops@facility@servers@',
+                clip = 'hotwire'
+            },
+        }) then
         isWorking = false
         StopAnimTask(cache.ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
-        TriggerEvent('animations:client:EmoteCommandStart', {"box"})
+        exports.scully_emotemenu:playEmoteByCommand('box')
         hasBox = true
+        exports.qbx_core:Notify(Lang:t('info.deliver_to_store'), 'info', 5000)
     else
         isWorking = false
         StopAnimTask(cache.ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
@@ -279,28 +298,30 @@ end
 
 local function Deliver()
     isWorking = true
-    TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-    Wait(500)
-    TriggerEvent('animations:client:EmoteCommandStart', {"bumbin"})
     if lib.progressCircle({
-        duration = 3000,
-        position = 'bottom',
-        useWhileDead = false,
-        canCancel = true,
-        disable = {
-            car = true,
-            mouse = false,
-            combat = true,
-            move = true,
-        },
-    }) then
+            duration = 3000,
+            position = 'bottom',
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                car = true,
+                mouse = false,
+                combat = true,
+                move = true,
+            },
+            anim = {
+                dict = 'anim@gangops@facility@servers@',
+                clip = 'hotwire'
+            },
+        }) then
         isWorking = false
+        StopAnimTask(cache.ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
+        exports.scully_emotemenu:cancelEmote()
         ClearPedTasks(cache.ped)
         hasBox = false
         currentCount += 1
         if currentCount == CurrentLocation.dropcount then
-            LocationsDone[#LocationsDone+1] = CurrentLocation.id
-            TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
+            LocationsDone[#LocationsDone + 1] = CurrentLocation.id
             Delivering = false
             showMarker = false
             if CurrentBlip ~= nil then
@@ -319,13 +340,14 @@ local function Deliver()
                 TriggerServerEvent("qbx_truckerjob:server:doneJob")
                 exports.qbx_core:Notify(Lang:t('mission.goto_next_point'), 'info', 5000)
                 getNewLocation()
-
             end
         elseif currentCount ~= CurrentLocation.dropcount then
             exports.qbx_core:Notify(Lang:t('mission.another_box'), 'info', 5000)
         else
             isWorking = false
             ClearPedTasks(cache.ped)
+            StopAnimTask(cache.ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
+            exports.scully_emotemenu:cancelEmote()
             exports.qbx_core:Notify(Lang:t('error.cancelled'), 'error', 5000)
         end
     end
@@ -375,7 +397,7 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
     end
 end)
 
-RegisterNetEvent('qbx_truckerjob:client:SpawnVehicle', function()
+RegisterNetEvent('qbx_truckerjob:client:spawnVehicle', function()
     local netId, plate = lib.callback.await('qbx_truckerjob:server:spawnVehicle', false, selectedVeh)
     local veh = NetToVeh(netId)
     SetVehicleNumberPlateText(veh, plate)
@@ -386,18 +408,18 @@ RegisterNetEvent('qbx_truckerjob:client:SpawnVehicle', function()
     getNewLocation()
 end)
 
-RegisterNetEvent('qbx_truckerjob:client:TakeOutVehicle', function(data)
+RegisterNetEvent('qbx_truckerjob:client:takeOutVehicle', function(data)
     local vehicleInfo = data.vehicle
-    TriggerServerEvent('qbx_truckerjob:server:DoBail', true, vehicleInfo)
+    TriggerServerEvent('qbx_truckerjob:server:doBail', true, vehicleInfo)
     selectedVeh = vehicleInfo
 end)
 
-RegisterNetEvent('qbx_truckerjob:client:Vehicle', function()
+RegisterNetEvent('qbx_truckerjob:client:vehicle', function()
     if IsPedInAnyVehicle(cache.ped, false) and isTruckerVehicle(GetVehiclePedIsIn(cache.ped, false)) then
         if GetPedInVehicleSeat(GetVehiclePedIsIn(cache.ped, false), -1) == cache.ped then
             if isTruckerVehicle(GetVehiclePedIsIn(cache.ped, false)) then
                 DeleteVehicle(GetVehiclePedIsIn(cache.ped, false))
-                TriggerServerEvent('qbx_truckerjob:server:DoBail', false)
+                TriggerServerEvent('qbx_truckerjob:server:doBail', false)
                 if CurrentBlip ~= nil then
                     RemoveBlip(CurrentBlip)
                     ClearAllBlipRoutes()
@@ -419,7 +441,7 @@ RegisterNetEvent('qbx_truckerjob:client:Vehicle', function()
     end
 end)
 
-RegisterNetEvent('qbx_truckerjob:client:PaySlip', function()
+RegisterNetEvent('qbx_truckerjob:client:paycheck', function()
     if JobsDone > 0 then
         TriggerServerEvent("qbx_truckerjob:server:getPaid")
         JobsDone = 0

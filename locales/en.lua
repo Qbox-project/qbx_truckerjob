@@ -1,38 +1,40 @@
 local Translations = {
     error = {
-        no_deposit = '$%{value} Deposit Required',
+        no_deposit = '$%{value} deposit required',
         cancelled = 'Cancelled',
         vehicle_not_correct = 'This is not a commercial vehicle!',
-        no_driver = 'You must be the driver to do this..',
-        no_work_done = 'You haven\'t done any work yet..',
+        no_driver = 'You must be the driver to do this',
+        no_work_done = 'You haven\'t done any deliveries yet',
         backdoors_not_open = 'The backdoors of the vehicle aren\'t open',
         get_out_vehicle = 'You need to step out of the vehicle to perform this action',
         too_far_from_trunk = 'You need to grab the boxes from the trunk of your vehicle',
         too_far_from_delivery = 'You need to be closer to the delivery point'
     },
     success = {
-        paid_with_cash = '$%{value} Deposit Paid With Cash',
-        paid_with_bank = '$%{value} Deposit Paid From Bank',
-        refund_to_cash = '$%{value} Deposit Paid With Cash',
-        you_earned = 'You Earned $%{value}',
-        payslip_time = 'You Went To All The Shops .. Time For Your Payslip!',
+        paid_with_cash = '$%{value} deposit paid with cash',
+        paid_with_bank = '$%{value} deposit paid from bank',
+        refund_to_cash = '$%{value} deposit returned',
+        you_earned = 'You have earned $%{value}',
+        payslip_time = 'You visited all the shops. It\'s time for your paycheck!',
     },
     menu = {
-        header = 'Available Trucks',
+        header = 'Available Vehicles',
         close_menu = '⬅ Close Menu',
     },
     mission = {
-        store_reached = 'Store reached, get a box in the trunk with [E] and deliver to marker',
-        take_box = 'Take A Box Of Products',
-        deliver_box = 'Deliver Box Of Products',
-        another_box = 'Get another Box Of Products',
-        goto_next_point = 'You Have Delivered All Products, To The Next Point',
-        return_to_station = 'You Have Delivered All Products, Return to Station',
-        job_completed = 'You Have Completed Your Route, Please Collect Your Pay Cheque'
+        store_reached = 'Store reached. Get a box from the trunk with [E] and deliver it to the marker.',
+        take_box = 'Take a box of products',
+        deliver_box = 'Deliver a box of products',
+        another_box = 'Pick up the next box',
+        goto_next_point = 'You have delivered all the products, go to the next delivery',
+        return_to_station = 'You have delivered all products. Return to the station',
+        job_completed = 'You have completed your route. Please collect your paycheck'
     },
     info = {
-        deliver_e = '~g~E~w~ - Deliver Products',
-        deliver = 'Deliver Products',
+        pickup_paycheck = '[E] - Pick up paycheck',
+        store_vehicle = '[E] - Store the Vehicle',
+        vehicles = '[E] - Vehicles',
+        deliver_to_store = 'Deliver the box to the store'
     }
 }
 
