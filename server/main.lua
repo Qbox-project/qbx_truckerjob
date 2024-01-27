@@ -3,8 +3,6 @@ local sharedConfig = require 'config.shared'
 local bail = {}
 local currentTruckers = {}
 
-lib.locale()
-
 RegisterNetEvent('qbx_truckerjob:server:doBail', function(bool, vehInfo)
     local src = source --[[@as number]]
     local Player = exports.qbx_core:GetPlayer(src)

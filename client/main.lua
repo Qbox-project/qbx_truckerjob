@@ -17,8 +17,6 @@ local showMarker = false
 local markerLocation
 local returningToStation = false
 
-lib.locale()
-
 -- Functions
 
 local function returnToStation()
