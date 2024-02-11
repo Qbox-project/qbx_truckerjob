@@ -265,7 +265,7 @@ local function createElements()
     createZone('vehicle')
 end
 
-local function setBackDoorsOpen(vehicle) -- This is hardcoded for the rumpo currently
+local function areBackDoorsOpen(vehicle) -- This is hardcoded for the rumpo currently
     return GetVehicleDoorAngleRatio(vehicle, 5) > 0.0 or GetVehicleDoorAngleRatio(vehicle, 2) > 0.0 and GetVehicleDoorAngleRatio(vehicle, 3) > 0.0
 end
 
@@ -280,7 +280,7 @@ local function getInTrunk()
         return exports.qbx_core:Notify(locale('error.vehicle_not_correct'), 'error', 5000)
     end
 
-    if not setBackDoorsOpen(vehicle) then
+    if not areBackDoorsOpen(vehicle) then
         return exports.qbx_core:Notify(locale('error.backdoors_not_open'), 'error', 5000)
     end
 

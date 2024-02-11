@@ -5,19 +5,19 @@ local currentTruckers = {}
 
 RegisterNetEvent('qbx_truckerjob:server:doBail', function(bool, vehInfo)
     local src = source --[[@as number]]
-    local Player = exports.qbx_core:GetPlayer(src)
-    if not Player then return end
+    local player = exports.qbx_core:GetPlayer(src)
+    if not player then return end
 
     if bool then
-        if Player.PlayerData.money.cash >= config.bailPrice then
-            bail[Player.PlayerData.citizenid] = config.bailPrice
-            Player.Functions.RemoveMoney('cash', config.bailPrice, "tow-received-bail")
+        if player.PlayerData.money.cash >= config.bailPrice then
+            bail[player.PlayerData.citizenid] = config.bailPrice
+            player.Functions.RemoveMoney('cash', config.bailPrice, "tow-received-bail")
 
             exports.qbx_core:Notify(src, locale("success.paid_with_cash", config.bailPrice), "success")
             TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', src, vehInfo)
-        elseif Player.PlayerData.money.bank >= config.bailPrice then
-            bail[Player.PlayerData.citizenid] = config.bailPrice
-            Player.Functions.RemoveMoney('bank', config.bailPrice, "tow-received-bail")
+        elseif player.PlayerData.money.bank >= config.bailPrice then
+            bail[player.PlayerData.citizenid] = config.bailPrice
+            player.Functions.RemoveMoney('bank', config.bailPrice, "tow-received-bail")
             exports.qbx_core:Notify(src, locale("success.paid_with_bank", config.bailPrice), "success")
 
             TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', src, vehInfo)
@@ -25,9 +25,9 @@ RegisterNetEvent('qbx_truckerjob:server:doBail', function(bool, vehInfo)
             exports.qbx_core:Notify(src, locale("error.no_deposit", config.bailPrice), "error")
         end
     else
-        if bail[Player.PlayerData.citizenid] then
-            Player.Functions.AddMoney('cash', bail[Player.PlayerData.citizenid], "trucker-bail-paid")
-            bail[Player.PlayerData.citizenid] = nil
+        if bail[player.PlayerData.citizenid] then
+            player.Functions.AddMoney('cash', bail[player.PlayerData.citizenid], "trucker-bail-paid")
+            bail[player.PlayerData.citizenid] = nil
 
             exports.qbx_core:Notify(src, locale("success.refund_to_cash", config.bailPrice), "success")
         end
@@ -36,25 +36,25 @@ end)
 
 RegisterNetEvent("qbx_truckerjob:server:doneJob", function ()
     local src = source --[[@as number]]
-    local Player = exports.qbx_core:GetPlayer(src)
-    if not Player or Player.PlayerData.job.name ~= "trucker" then return end
+    local player = exports.qbx_core:GetPlayer(src)
+    if not player or player.PlayerData.job.name ~= "trucker" then return end
 
     currentTruckers[src] = (currentTruckers[src] or 0) + 1
 
     local chance = math.random(1, 100)
     if chance > 26 then return end
 
-    Player.Functions.AddItem("cryptostick", 1, false)
+    player.Functions.AddItem("cryptostick", 1, false)
 end)
 
 RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
     local src = source --[[@as number]]
     if not currentTruckers[src] or currentTruckers[src] == 0 then return end
 
-    local Player = exports.qbx_core:GetPlayer(src)
-    if not Player then return end
+    local player = exports.qbx_core:GetPlayer(src)
+    if not player then return end
 
-    if Player.PlayerData.job.name ~= "trucker" then return DropPlayer(src --[[@as string]], locale('exploit_attempt')) end
+    if player.PlayerData.job.name ~= "trucker" then return DropPlayer(src --[[@as string]], locale('exploit_attempt')) end
 
     local drops = currentTruckers[src]
     currentTruckers[src] = nil
@@ -74,8 +74,8 @@ RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
     local price = (dropPrice * drops) + bonus
     local taxAmount = math.ceil((price / 100) * config.paymentTax)
     local payment = price - taxAmount
-    Player.Functions.AddJobReputation(drops)
-    Player.Functions.AddMoney("bank", payment, "trucker-salary")
+    player.Functions.AddJobReputation(drops)
+    player.Functions.AddMoney("bank", payment, "trucker-salary")
     exports.qbx_core:Notify(src, locale("success.you_earned", payment), "success")
 end)
 
