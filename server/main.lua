@@ -13,13 +13,13 @@ RegisterNetEvent('qbx_truckerjob:server:doBail', function(bool, vehInfo)
             player.Functions.RemoveMoney('cash', config.bailPrice, "tow-received-bail")
 
             exports.qbx_core:Notify(player.PlayerData.source, locale("success.paid_with_cash", config.bailPrice), "success")
-            TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', src, vehInfo)
+            TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', player.PlayerData.source, vehInfo)
         elseif player.PlayerData.money.bank >= config.bailPrice then
             bail[player.PlayerData.citizenid] = config.bailPrice
             player.Functions.RemoveMoney('bank', config.bailPrice, "tow-received-bail")
             exports.qbx_core:Notify(player.PlayerData.source, locale("success.paid_with_bank", config.bailPrice), "success")
 
-            TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', src, vehInfo)
+            TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', player.PlayerData.source, vehInfo)
         else
             exports.qbx_core:Notify(player.PlayerData.source, locale("error.no_deposit", config.bailPrice), "error")
         end
