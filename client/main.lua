@@ -1,7 +1,6 @@
 local config = require 'config.client'
 local sharedConfig = require 'config.shared'
 local jobsDone = 0
-local locationsDone = {}
 local currentZones = {}
 local currentLocation = {}
 local currentBlip = 0
@@ -18,30 +17,9 @@ local markerLocation
 local returningToStation = false
 
 -- Functions
-
 local function returnToStation()
     SetBlipRoute(truckVehBlip, true)
     returningToStation = true
-end
-
-local function hasDoneLocation(locationId)
-    if locationsDone and table.type(locationsDone) ~= "empty" then
-        for _, v in pairs(locationsDone) do
-            if v == locationId then
-                return true
-            end
-        end
-    end
-    return false
-end
-
-local function getNextLocation()
-    local current = 1
-    while hasDoneLocation(current) do
-        current = math.random(#sharedConfig.locations.stores)
-    end
-
-    return current
 end
 
 local function isTruckerVehicle(vehicle)
@@ -214,12 +192,11 @@ local function createZone(type, number)
     end
 end
 
-local function getNewLocation()
-    local location = getNextLocation()
+local function getNewLocation(location, drop)
     if location ~= 0 then
         currentLocation = {
             id = location,
-            dropcount = math.random(1, 3),
+            dropcount = drop,
             store = sharedConfig.locations.stores[location].label,
             coords = sharedConfig.locations.stores[location].coords
         }
@@ -346,7 +323,6 @@ local function deliver()
         hasBox = false
         currentCount += 1
         if currentCount == currentLocation.dropcount then
-            locationsDone[#locationsDone + 1] = currentLocation.id
             delivering = false
             showMarker = false
             if DoesBlipExist(currentBlip) then
@@ -362,9 +338,9 @@ local function deliver()
                 exports.qbx_core:Notify(locale('mission.return_to_station'), 'info', 5000)
                 returnToStation()
             else
-                TriggerServerEvent("qbx_truckerjob:server:doneJob")
+                local location, drop = lib.callback.await('qbx_truckerjob:server:doneJob', false)
                 exports.qbx_core:Notify(locale('mission.goto_next_point'), 'info', 5000)
-                getNewLocation()
+                getNewLocation(location, drop)
             end
         elseif currentCount ~= currentLocation.dropcount then
             exports.qbx_core:Notify(locale('mission.another_box'), 'info', 5000)
@@ -420,7 +396,7 @@ end)
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
     removeElements()
 
-    if table.type(currentLocation) ~= 'empty' and currentLocation.zoneCombo then
+    if next(currentLocation) and currentLocation.zoneCombo then
         currentLocation.zoneCombo:remove()
         delivering = false
         showMarker = false
@@ -439,7 +415,8 @@ RegisterNetEvent('qbx_truckerjob:client:spawnVehicle', function()
     SetVehicleColours(veh, 122, 122)
     SetVehicleEngineOn(veh, true, true, false)
     currentPlate = qbx.getVehiclePlate(veh)
-    getNewLocation()
+    local location, drop = lib.callback.await('qbx_truckerjob:server:doneJob', false)
+    getNewLocation(location, drop)
 end)
 
 RegisterNetEvent('qbx_truckerjob:client:takeOutVehicle', function(data)
@@ -470,7 +447,7 @@ RegisterNetEvent('qbx_truckerjob:client:vehicle', function()
         currentBlip = 0
     end
 
-    if not returningToStation and table.type(currentLocation) == 'empty' then return end
+    if not returningToStation and not next(currentLocation) then return end
 
     ClearAllBlipRoutes()
     returningToStation = false
@@ -484,10 +461,6 @@ RegisterNetEvent('qbx_truckerjob:client:paycheck', function()
 
     TriggerServerEvent("qbx_truckerjob:server:getPaid")
     jobsDone = 0
-
-    if #locationsDone == #sharedConfig.locations.stores then
-        locationsDone = {}
-    end
 
     if not DoesBlipExist(currentBlip) then return end
 

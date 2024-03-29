@@ -1,7 +1,7 @@
 local config = require 'config.server'
 local sharedConfig = require 'config.shared'
 local bail = {}
-local currentTruckers = {}
+local locations = {}
 
 RegisterNetEvent('qbx_truckerjob:server:doBail', function(bool, vehInfo)
     local player = exports.qbx_core:GetPlayer(source)
@@ -33,28 +33,16 @@ RegisterNetEvent('qbx_truckerjob:server:doBail', function(bool, vehInfo)
     end
 end)
 
-RegisterNetEvent("qbx_truckerjob:server:doneJob", function ()
-    local player = exports.qbx_core:GetPlayer(source)
-    if not player or player.PlayerData.job.name ~= "trucker" then return end
-
-    currentTruckers[player.PlayerData.source] = (currentTruckers[player.PlayerData.source] or 0) + 1
-
-    local chance = math.random(1, 100)
-    if chance > 26 then return end
-
-    player.Functions.AddItem("cryptostick", 1, false)
-end)
-
 RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
-    if not currentTruckers[player.PlayerData.source] or currentTruckers[player.PlayerData.source] == 0 then return end
+    if not locations[player.PlayerData.source] then return end
 
 
     if player.PlayerData.job.name ~= "trucker" then return DropPlayer(player.PlayerData.source, locale('exploit_attempt')) end
 
-    local drops = currentTruckers[player.PlayerData.source]
-    currentTruckers[player.PlayerData.source] = nil
+    local drops = #locations[player.PlayerData.source].done
+    locations[player.PlayerData.source] = nil
     local bonus = 0
     local dropPrice = math.random(100, 120)
 
@@ -94,5 +82,85 @@ lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, mod
 end)
 
 RegisterNetEvent("QBCore:Server:OnPlayerUnload", function (client)
-    currentTruckers[client] = nil
+    locations[client] = nil
+end)
+
+local function isNotLocationDone(location, current)
+    for i=1,#location.done do
+        if location.done[i] == current then
+            return false
+        end
+    end
+
+    return true
+end
+
+local function getPlayer(source)
+    local player = exports.qbx_core:GetPlayer(source)
+    if not player or player.PlayerData.job.name ~= "trucker" then return end
+    return player
+end
+
+local function getPlayerRoutes(source)
+    local player = getPlayer(source)
+    if not player then return end
+    local routes = 0
+    local location = locations[player.PlayerData.source]
+    if location then
+        routes = location.done
+    end
+
+    return player, routes
+end
+
+local function getReward(player)
+    local chance = math.random(1, 100)
+    if chance > 26 then return end
+
+    player.Functions.AddItem("cryptostick", 1, false)
+end
+
+lib.callback.register('qbx_truckerjob:server:doneJob', function (source)
+    local player, routes = getPlayerRoutes(source)
+    if not player or not routes then return end
+    local time = math.floor(os.clock())
+
+    if routes == 0 then
+        math.randomseed(math.floor(time/3600), math.floor(time/300))
+        local randPositionIndex = math.random(#sharedConfig.locations.stores)
+        locations[player.PlayerData.source] = {
+            done = {},
+            current = randPositionIndex
+        }
+
+        return randPositionIndex, math.random(config.drops.min, config.drops.max)
+    end
+
+    getReward(player)
+
+    locations[player.PlayerData.source].done[#locations[player.PlayerData.source].done + 1]
+        = locations[player.PlayerData.source].current
+
+    local index = 0
+    local minDist = 0
+    local stores = sharedConfig.locations.stores
+
+    local currentCoords = sharedConfig.locations.stores[locations[player.PlayerData.source].current].coords.xyz
+
+    for i=1,#stores do
+        local store = stores[i]
+        if isNotLocationDone(locations[player.PlayerData.source], i) then
+            local storeLocation = store.coords.xyz
+            local distance = #(currentCoords - storeLocation)
+            if  minDist == 0 or (distance ~= 0 and distance < minDist) then
+                index = i
+                minDist = distance
+            end
+        end
+    end
+
+    locations[player.PlayerData.source].current = index
+
+    math.randomseed(time)
+    return index, math.random(config.drops.min, config.drops.max)
 end)
