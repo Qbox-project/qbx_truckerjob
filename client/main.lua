@@ -334,11 +334,11 @@ local function deliver()
             currentLocation = {}
             currentCount = 0
             jobsDone += 1
-            if jobsDone == config.maxDrops then
+            local location, drop = lib.callback.await('qbx_truckerjob:server:doneJob', false)
+            if location == 0 then
                 exports.qbx_core:Notify(locale('mission.return_to_station'), 'info', 5000)
                 returnToStation()
             else
-                local location, drop = lib.callback.await('qbx_truckerjob:server:doneJob', false)
                 exports.qbx_core:Notify(locale('mission.goto_next_point'), 'info', 5000)
                 getNewLocation(location, drop)
             end

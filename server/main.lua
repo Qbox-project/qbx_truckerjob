@@ -136,6 +136,12 @@ lib.callback.register('qbx_truckerjob:server:doneJob', function (source)
         return randPositionIndex, math.random(config.drops.min, config.drops.max)
     end
 
+    if #locations[player.PlayerData.source].done == (sharedConfig.maxDrops - 1) then
+        locations[player.PlayerData.source].done[#locations[player.PlayerData.source].done + 1] = locations[player.PlayerData.source].current
+        locations[player.PlayerData.source].current = nil
+        return 0, 0
+    end
+
     getReward(player)
 
     locations[player.PlayerData.source].done[#locations[player.PlayerData.source].done + 1]
