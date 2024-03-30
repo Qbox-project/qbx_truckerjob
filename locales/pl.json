@@ -1,0 +1,39 @@
+{
+    "error": {
+        "no_deposit": "Wymagana kaucja w wysokości %s$",
+        "cancelled": "Anulowano",
+        "vehicle_not_correct": "To nie jest pojazd służbowy!",
+        "no_driver": "Musisz być kierowcą, aby to zrobić",
+        "no_work_done": "Nie wykonałeś jeszcze żadnych dostaw",
+        "backdoors_not_open": "Tylnie drzwi pojazdu nie są otwarte",
+        "get_out_vehicle": "Musisz wyjść z pojazdu, aby wykonać tę czynność",
+        "too_far_from_trunk": "Musisz zabrać pudełka z bagażnika swojego pojazdu",
+        "too_far_from_delivery": "Musisz być bliżej punktu dostawy"
+    },
+    "success": {
+        "paid_with_cash": "Zapłacono kaucję gotówką w wysokości %s$",
+        "paid_with_bank": "Zapłacono kaucję z banku w wysokości %s$",
+        "refund_to_cash": "Zwrócono kaucję w wysokości %s$",
+        "you_earned": "Zarobiłeś %s$",
+        "payslip_time": "Odwiedziłeś wszystkie sklepy. Czas na wypłatę!"
+    },
+    "menu": {
+        "header": "Dostępne Pojazdy",
+        "close_menu": "⬅ Zamknij Menu"
+    },
+    "mission": {
+        "store_reached": "Dotarłeś do sklepu. Weź pudełko z bagażnika za pomocą [E] i dostarcz je do znacznika.",
+        "take_box": "Weź pudełko z produktami",
+        "deliver_box": "Dostarcz pudełko z produktami",
+        "another_box": "Weź następne pudełko",
+        "goto_next_point": "Dostarczyłeś wszystkie produkty, przejdź do następnej dostawy",
+        "return_to_station": "Dostarczyłeś wszystkie produkty. Wróć na stację",
+        "job_completed": "Zakończyłeś swoją trasę. Proszę odbierz swoją wypłatę"
+    },
+    "info": {
+        "pickup_paycheck": "[E] - Odbierz wypłatę",
+        "store_vehicle": "[E] - Odstaw pojazd",
+        "vehicles": "[E] - Pojazdy",
+        "deliver_to_store": "Dostarcz pudełko do sklepu"
+    }
+}
