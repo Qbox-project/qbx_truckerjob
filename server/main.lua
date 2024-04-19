@@ -114,10 +114,9 @@ local function getPlayerRoutes(source)
 end
 
 local function getReward(player)
-    local chance = math.random(1, 100)
-    if chance > 26 then return end
-
-    player.Functions.AddItem("cryptostick", 1, false)
+    if math.random() < 0.74 then
+        player.Functions.AddItem("cryptostick", 1, false)
+    end
 end
 
 lib.callback.register('qbx_truckerjob:server:doneJob', function (source)
