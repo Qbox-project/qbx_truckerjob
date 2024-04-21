@@ -148,7 +148,7 @@ lib.callback.register('qbx_truckerjob:server:getNewTask', function (source, init
 
     local doneLocations = locations[source].done
     locations[source].done[#doneLocations + 1] = locations[source].current
-    if #doneLocations == (config.maxDrops - 1) then
+    if #doneLocations == config.maxDrops then
         locations[source].current = nil
         return 0, 0
     end
