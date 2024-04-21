@@ -133,7 +133,7 @@ end
 --- @param init boolean
 --- @return integer? `shop index` if any route to do, 0 otherwise
 --- @return integer boxes per location
-lib.callback.register('qbx_truckerjob:server:completeJob', function (source, init)
+lib.callback.register('qbx_truckerjob:server:getNewTask', function (source, init)
     local player = getPlayer(source)
     if not player then return nil, 0 end
 

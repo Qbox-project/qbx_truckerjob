@@ -318,7 +318,7 @@ local function deliver()
             currentLocation.zoneCombo:remove()
             currentLocation = {}
             currentCount = 0
-            local location, drop = lib.callback.await('qbx_truckerjob:server:completeJob', false)
+            local location, drop = lib.callback.await('qbx_truckerjob:server:getNewTask', false)
             if not location then return
             elseif location == 0 then
                 exports.qbx_core:Notify(locale('mission.return_to_station'), 'info')
@@ -393,7 +393,7 @@ RegisterNetEvent('qbx_truckerjob:client:spawnVehicle', function()
     SetVehicleColours(vehicle, 122, 122)
     SetVehicleEngineOn(vehicle, true, true, false)
     currentPlate = qbx.getVehiclePlate(vehicle)
-    local location, drop = lib.callback.await('qbx_truckerjob:server:completeJob', false, true)
+    local location, drop = lib.callback.await('qbx_truckerjob:server:getNewTask', false, true)
     if not location then return end
     getNewLocation(location, drop)
 end)
