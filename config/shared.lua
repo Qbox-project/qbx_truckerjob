@@ -1,5 +1,4 @@
 return {
-    maxDrops = 10, -- amount of locations before being forced to return to station to reload,
     locations = {
         main = {
             label = 'Truck Shed',

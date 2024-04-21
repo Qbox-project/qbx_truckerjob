@@ -1,67 +1,94 @@
 local config = require 'config.server'
 local sharedConfig = require 'config.shared'
-local bail = {}
-local locations = {}
+--- drops is the counter of packages for which payment is due
+local bail, drops, locations, antiAbuse = {}, {}, {}, {}
 
-RegisterNetEvent('qbx_truckerjob:server:doBail', function(bool, vehInfo)
+local function getPlayer(source)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
 
+    if player.PlayerData.job.name ~= "trucker" then
+        return DropPlayer(source, locale('exploit_attempt'))
+    end
+
+    return player
+end
+
+local function turnAntiSpawnAbuseOn(source)
+    CreateThread(function ()
+        if not antiAbuse[source] then
+            antiAbuse[source] = true
+            Wait(config.spawnBreakTime)
+            antiAbuse[source] = nil
+        end
+    end)
+end
+
+RegisterNetEvent('qbx_truckerjob:server:doBail', function(bool, vehInfo)
+    local player = getPlayer(source)
+    if not player then return end
+
     if bool then
+        turnAntiSpawnAbuseOn(source)
+        if antiAbuse[source] then
+            return exports.qbx_core:Notify(source, locale("error.too_many_rents", config.bailPrice), "error")
+        end
+
         if player.PlayerData.money.cash >= config.bailPrice then
             bail[player.PlayerData.citizenid] = config.bailPrice
             player.Functions.RemoveMoney('cash', config.bailPrice, "tow-received-bail")
 
-            exports.qbx_core:Notify(player.PlayerData.source, locale("success.paid_with_cash", config.bailPrice), "success")
-            TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', player.PlayerData.source, vehInfo)
+            exports.qbx_core:Notify(source, locale("success.paid_with_cash", config.bailPrice), "success")
+            TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', source, vehInfo)
         elseif player.PlayerData.money.bank >= config.bailPrice then
             bail[player.PlayerData.citizenid] = config.bailPrice
             player.Functions.RemoveMoney('bank', config.bailPrice, "tow-received-bail")
-            exports.qbx_core:Notify(player.PlayerData.source, locale("success.paid_with_bank", config.bailPrice), "success")
+            exports.qbx_core:Notify(source, locale("success.paid_with_bank", config.bailPrice), "success")
 
-            TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', player.PlayerData.source, vehInfo)
+            TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', source, vehInfo)
         else
-            exports.qbx_core:Notify(player.PlayerData.source, locale("error.no_deposit", config.bailPrice), "error")
+            exports.qbx_core:Notify(source, locale("error.no_deposit", config.bailPrice), "error")
         end
     else
         if bail[player.PlayerData.citizenid] then
             player.Functions.AddMoney('cash', bail[player.PlayerData.citizenid], "trucker-bail-paid")
             bail[player.PlayerData.citizenid] = nil
 
-            exports.qbx_core:Notify(player.PlayerData.source, locale("success.refund_to_cash", config.bailPrice), "success")
+            exports.qbx_core:Notify(source, locale("success.refund_to_cash", config.bailPrice), "success")
         end
     end
 end)
 
 RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
-    local player = exports.qbx_core:GetPlayer(source)
+    local player = getPlayer(source)
     if not player then return end
-    if not locations[player.PlayerData.source] then return end
 
+    local playerDrops = drops[source] or 0
 
-    if player.PlayerData.job.name ~= "trucker" then return DropPlayer(player.PlayerData.source, locale('exploit_attempt')) end
+    if playerDrops == 0 then
+        return exports.qbx_core:Notify(locale('error.no_work_done'), 'error')
+    end
 
-    local drops = #locations[player.PlayerData.source].done
-    locations[player.PlayerData.source] = nil
-    local bonus = 0
-    local dropPrice = math.random(100, 120)
+    local dropPrice, bonus = math.random(100, 120), 0
 
-    if drops >= 5 then
+    if playerDrops >= 5 then
         bonus = math.ceil((dropPrice / 10) * 5) + 100
-    elseif drops >= 10 then
+    elseif playerDrops >= 10 then
         bonus = math.ceil((dropPrice / 10) * 7) + 300
-    elseif drops >= 15 then
+    elseif playerDrops >= 15 then
         bonus = math.ceil((dropPrice / 10) * 10) + 400
-    elseif drops >= 20 then
+    elseif playerDrops >= 20 then
         bonus = math.ceil((dropPrice / 10) * 12) + 500
     end
 
-    local price = (dropPrice * drops) + bonus
+    local price = (dropPrice * playerDrops) + bonus
     local taxAmount = math.ceil((price / 100) * config.paymentTax)
     local payment = price - taxAmount
-    player.Functions.AddJobReputation(drops)
+    player.Functions.AddJobReputation(playerDrops)
+    drops[source] = nil
+
     player.Functions.AddMoney("bank", payment, "trucker-salary")
-    exports.qbx_core:Notify(player.PlayerData.source, locale("success.you_earned", payment), "success")
+    exports.qbx_core:Notify(source, locale("success.you_earned", payment), "success")
 end)
 
 lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, model)
@@ -72,11 +99,11 @@ lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, mod
     })
     if not netId or netId == 0 then return end
 
-    local veh = NetworkGetEntityFromNetworkId(netId)
-    if not veh or veh == 0 then return end
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if not vehicle or vehicle == 0 then return end
 
-    local plate = "TRUK"..tostring(math.random(1000, 9999))
-    SetVehicleNumberPlateText(veh, plate)
+    local plate = "TRUK"..lib.string.random('1111')
+    SetVehicleNumberPlateText(vehicle, plate)
     TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
     return netId, plate
 end)
@@ -95,66 +122,51 @@ local function isNotLocationDone(location, current)
     return true
 end
 
-local function getPlayer(source)
-    local player = exports.qbx_core:GetPlayer(source)
-    if not player or player.PlayerData.job.name ~= "trucker" then return end
-    return player
-end
-
-local function getPlayerRoutes(source)
-    local player = getPlayer(source)
-    if not player then return end
-    local routes = 0
-    local location = locations[player.PlayerData.source]
-    if location then
-        routes = location.done
-    end
-
-    return player, routes
-end
-
-local function getReward(player)
+local function giveReward(player)
     if math.random() < 0.74 then
         player.Functions.AddItem("cryptostick", 1, false)
     end
 end
 
-lib.callback.register('qbx_truckerjob:server:doneJob', function (source)
-    local player, routes = getPlayerRoutes(source)
-    if not player or not routes then return end
-    local time = math.floor(os.clock())
+--- selection of a new delivery destination
+--- @param source number player id
+--- @param init boolean
+--- @return integer? `shop index` if any route to do, 0 otherwise
+--- @return integer boxes per location
+lib.callback.register('qbx_truckerjob:server:completeJob', function (source, init)
+    local player = getPlayer(source)
+    if not player then return nil, 0 end
 
-    if routes == 0 then
-        math.randomseed(math.floor(time/3600), math.floor(time/300))
+    if init then
         local randPositionIndex = math.random(#sharedConfig.locations.stores)
-        locations[player.PlayerData.source] = {
-            done = {},
-            current = randPositionIndex
-        }
+        locations[source] = {done = {}, current = randPositionIndex}
 
         return randPositionIndex, math.random(config.drops.min, config.drops.max)
     end
 
-    if #locations[player.PlayerData.source].done == (sharedConfig.maxDrops - 1) then
-        locations[player.PlayerData.source].done[#locations[player.PlayerData.source].done + 1] = locations[player.PlayerData.source].current
-        locations[player.PlayerData.source].current = nil
+    drops[source] = (drops[source] or 0) + 1
+
+    local doneLocations = locations[source].done
+    if #doneLocations == (config.maxDrops - 1) then
+        locations[source].done[#doneLocations + 1] = locations[source].current
+        locations[source].current = nil
         return 0, 0
     end
 
-    getReward(player)
+    giveReward(player)
 
-    locations[player.PlayerData.source].done[#locations[player.PlayerData.source].done + 1]
-        = locations[player.PlayerData.source].current
+    locations[source].done[#locations[source].done + 1]
+        = locations[source].current
 
     local index = 0
     local minDist = 0
     local stores = sharedConfig.locations.stores
 
-    local currentCoords = sharedConfig.locations.stores[locations[player.PlayerData.source].current].coords.xyz
+    local currentCoords = sharedConfig.locations.stores[locations[source].current].coords.xyz
 
     for i=1,#stores do
         local store = stores[i]
-        if isNotLocationDone(locations[player.PlayerData.source], i) then
+        if isNotLocationDone(locations[source], i) then
             local storeLocation = store.coords.xyz
             local distance = #(currentCoords - storeLocation)
             if  minDist == 0 or (distance ~= 0 and distance < minDist) then
@@ -164,8 +176,7 @@ lib.callback.register('qbx_truckerjob:server:doneJob', function (source)
         end
     end
 
-    locations[player.PlayerData.source].current = index
+    locations[source].current = index
 
-    math.randomseed(time)
     return index, math.random(config.drops.min, config.drops.max)
 end)
