@@ -66,7 +66,7 @@ RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
     local playerDrops = drops[source] or 0
 
     if playerDrops == 0 then
-        return exports.qbx_core:Notify(locale('error.no_work_done'), 'error')
+        return exports.qbx_core:Notify(source, locale('error.no_work_done'), 'error')
     end
 
     local dropPrice, bonus = math.random(100, 120), 0
