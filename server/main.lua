@@ -153,14 +153,14 @@ local function isNotLocationDone(doneLocations, current)
     return true
 end
 
---- @deprecated in the current version, cryptosticks have no value
+--- deprecated in the current version, cryptosticks have no value
 --- gives cryptostick
----@param player any `Player`
-local function giveReward(player)
-    if math.random() < 0.74 then
-        player.Functions.AddItem("cryptostick", 1, false)
-    end
-end
+--- param player any `Player`
+-- local function giveReward(player)
+--     if math.random() < 0.74 then
+--         player.Functions.AddItem("cryptostick", 1, false)
+--     end
+-- end
 
 --- selection of a new delivery destination
 --- @param source number player id
