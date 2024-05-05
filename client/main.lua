@@ -45,6 +45,8 @@ local function removeElements()
     for _, zone in ipairs(currentZones) do
         zone:remove()
     end
+
+    currentZones = {}
 end
 
 local function openMenuGarage()
