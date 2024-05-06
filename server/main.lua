@@ -24,7 +24,7 @@ local function getPlayer(source)
     if not player then return end
 
     if player.PlayerData.job.name ~= "trucker" then
-        return DropPlayer(player.PlayerData.source, locale('exploit_attempt'))
+        return DropPlayer(source, locale('exploit_attempt'))
     end
 
     return player
@@ -124,7 +124,7 @@ lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, mod
     local netId = qbx.spawnVehicle({
         model = model,
         spawnSource = vec4(vehicleLocation.coords.x, vehicleLocation.coords.y, vehicleLocation.coords.z, vehicleLocation.rotation),
-        warp = GetPlayerPed(player.PlayerData.source),
+        warp = GetPlayerPed(source),
     })
     if not netId or netId == 0 then return end
 
@@ -133,12 +133,12 @@ lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, mod
 
     local plate = "TRUK" .. lib.string.random('1111')
     SetVehicleNumberPlateText(vehicle, plate)
-    TriggerClientEvent('vehiclekeys:client:SetOwner', player.PlayerData.source, plate)
+    TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
     return netId, plate
 end)
 
-RegisterNetEvent("QBCore:Server:OnPlayerUnload", function (client)
-    locations[client] = nil
+AddEventHandler("playerDropped", function (source)
+    locations[source] = nil
 end)
 
 --- Checks if location is in done table
@@ -175,17 +175,17 @@ lib.callback.register('qbx_truckerjob:server:getNewTask', function(source, init)
 
     if init then
         local randPositionIndex = math.random(#sharedConfig.locations.stores)
-        locations[citizenid] = { done = {}, current = randPositionIndex }
+        locations[source] = { done = {}, current = randPositionIndex }
 
         return randPositionIndex, math.random(config.drops.min, config.drops.max)
     end
 
     drops[citizenid] = (drops[citizenid] or 0) + 1
 
-    local doneLocations = locations[citizenid].done
-    locations[citizenid].done[#doneLocations + 1] = locations[citizenid].current
+    local doneLocations = locations[source].done
+    locations[source].done[#doneLocations + 1] = locations[source].current
     if #doneLocations == config.maxDrops then
-        locations[citizenid].current = nil
+        locations[source].current = nil
         return 0, 0
     end
 
@@ -195,11 +195,11 @@ lib.callback.register('qbx_truckerjob:server:getNewTask', function(source, init)
     local minDist = 0
     local stores = sharedConfig.locations.stores
 
-    local currentCoords = sharedConfig.locations.stores[locations[citizenid].current].coords.xyz
+    local currentCoords = sharedConfig.locations.stores[locations[source].current].coords.xyz
 
     for i = 1, #stores do
         local store = stores[i]
-        if isNotLocationDone(locations[citizenid].done, i) then
+        if isNotLocationDone(locations[source].done, i) then
             local storeLocation = store.coords.xyz
             local distance = #(currentCoords - storeLocation)
             if minDist == 0 or (distance ~= 0 and distance < minDist) then
@@ -209,7 +209,7 @@ lib.callback.register('qbx_truckerjob:server:getNewTask', function(source, init)
         end
     end
 
-    locations[citizenid].current = index
+    locations[source].current = index
 
     return index, math.random(config.drops.min, config.drops.max)
 end)
