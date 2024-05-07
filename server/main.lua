@@ -77,14 +77,12 @@ RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
 end)
 
 lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, model)
-    local netId = qbx.spawnVehicle({
+    local netId, veh = qbx.spawnVehicle({
         model = model,
         spawnSource = vec4(sharedConfig.locations.vehicle.coords.x, sharedConfig.locations.vehicle.coords.y, sharedConfig.locations.vehicle.coords.z, sharedConfig.locations.vehicle.rotation),
         warp = GetPlayerPed(source),
     })
     if not netId or netId == 0 then return end
-
-    local veh = NetworkGetEntityFromNetworkId(netId)
     if not veh or veh == 0 then return end
 
     local plate = "TRUK"..tostring(math.random(1000, 9999))
