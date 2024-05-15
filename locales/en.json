@@ -4,8 +4,8 @@
         "cancelled": "Cancelled",
         "vehicle_not_correct": "This is not a commercial vehicle!",
         "no_driver": "You must be the driver to do this",
-        "no_work_done": "You haven\"t done any deliveries yet",
-        "backdoors_not_open": "The backdoors of the vehicle aren\"t open",
+        "no_work_done": "You haven't done any deliveries yet",
+        "backdoors_not_open": "The backdoors of the vehicle aren't open",
         "get_out_vehicle": "You need to step out of the vehicle to perform this action",
         "too_far_from_trunk": "You need to grab the boxes from the trunk of your vehicle",
         "too_far_from_delivery": "You need to be closer to the delivery point",
@@ -16,7 +16,7 @@
         "paid_with_bank": "$%s deposit paid from bank",
         "refund_to_cash": "$%s deposit returned",
         "you_earned": "You have earned $%s",
-        "payslip_time": "You visited all the shops. It\"s time for your paycheck!"
+        "payslip_time": "You visited all the shops. It's time for your paycheck!"
     },
     "menu": {
         "header": "Available Vehicles",

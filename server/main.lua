@@ -121,15 +121,13 @@ lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, mod
 
     local vehicleLocation = sharedConfig.locations.vehicle
 
-    local netId = qbx.spawnVehicle({
+    local netId, veh = qbx.spawnVehicle({
         model = model,
         spawnSource = vec4(vehicleLocation.coords.x, vehicleLocation.coords.y, vehicleLocation.coords.z, vehicleLocation.rotation),
         warp = GetPlayerPed(source),
     })
     if not netId or netId == 0 then return end
-
-    local vehicle = NetworkGetEntityFromNetworkId(netId)
-    if not vehicle or vehicle == 0 then return end
+    if not veh or veh == 0 then return end
 
     local plate = "TRUK" .. lib.string.random('1111')
     SetVehicleNumberPlateText(vehicle, plate)

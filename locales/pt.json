@@ -1,0 +1,39 @@
+{
+    "error": {
+        "no_deposit": "É necessário um depósito de %s€",
+        "cancelled": "Cancelado",
+        "vehicle_not_correct": "Este não é um veículo comercial!",
+        "no_driver": "Deves ser o condutor para fazer isto",
+        "no_work_done": "Ainda não fizeste nenhuma entrega",
+        "backdoors_not_open": "As portas traseiras do veículo não estão abertas",
+        "get_out_vehicle": "Deves sair do veículo para executar esta ação",
+        "too_far_from_trunk": "Tens de pegar nas caixas a partir da bagageira do teu veículo",
+        "too_far_from_delivery": "Tens de estar mais perto do ponto de entrega"
+    },
+    "success": {
+        "paid_with_cash": "Depósito de %s€ pago em dinheiro",
+        "paid_with_bank": "Depósito de %s€ pago a partir do banco",
+        "refund_to_cash": "Depósito de %s€ devolvido",
+        "you_earned": "Ganhaste %s€",
+        "payslip_time": "Visitaste todas as lojas. É hora do teu pagamento!"
+    },
+    "menu": {
+        "header": "Veículos Disponíveis",
+        "close_menu": "⬅ Fechar Menu"
+    },
+    "mission": {
+        "store_reached": "Loja alcançada. Pega numa caixa da bagageira com [E] e entrega-a ao marcador.",
+        "take_box": "Pegar numa caixa de produtos",
+        "deliver_box": "Entregar uma caixa de produtos",
+        "another_box": "Pegar na próxima caixa",
+        "goto_next_point": "Entregaste todos os produtos, vai para a próxima entrega",
+        "return_to_station": "Entregaste todos os produtos. Volta à estação",
+        "job_completed": "Completaste a tua rota. Por favor, recolhe o teu pagamento"
+    },
+    "info": {
+        "pickup_paycheck": "[E] - Levantar pagamento",
+        "store_vehicle": "[E] - Guardar o Veículo",
+        "vehicles": "[E] - Veículos",
+        "deliver_to_store": "Entregar a caixa à loja"
+    }
+}
