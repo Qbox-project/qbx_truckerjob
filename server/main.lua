@@ -130,7 +130,7 @@ lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, mod
     if not veh or veh == 0 then return end
 
     local plate = "TRUK" .. lib.string.random('1111')
-    SetVehicleNumberPlateText(vehicle, plate)
+    SetVehicleNumberPlateText(veh, plate)
     TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
     return netId, plate
 end)
