@@ -1,0 +1,40 @@
+{
+    "error": {
+        "no_deposit": "DKK%s depositum krævet",
+        "cancelled": "Annulleret",
+        "vehicle_not_correct": "Dette er ikke et erhvervskøretøj!",
+        "no_driver": "Du skal være chaufføren for at gøre dette",
+        "no_work_done": "Du har ikke lavet nogen leveringer endnu",
+        "backdoors_not_open": "Køretøjets bagdøre er ikke åbne",
+        "get_out_vehicle": "Du skal stige ud af køretøjet for at udføre denne handling",
+        "too_far_from_trunk": "Du skal tage kasserne fra bagagerummet på dit køretøj",
+        "too_far_from_delivery": "Du skal være tættere på leveringsstedet",
+        "too_many_rents": "Du har for nylig lejet en bil, kom tilbage om et par minutter"
+    },
+    "success": {
+        "paid_with_cash": "DKK%s depositum betalt kontant",
+        "paid_with_bank": "DKK%s depositum betalt fra bank",
+        "refund_to_cash": "DKK%s depositum returneret",
+        "you_earned": "Du har tjent DKK%s",
+        "payslip_time": "Du har besøgt alle butikkerne. Det er tid til din lønseddel!"
+    },
+    "menu": {
+        "header": "Tilgængelige Køretøjer",
+        "close_menu": "⬅ Luk Menu"
+    },
+    "mission": {
+        "store_reached": "Butik nået. Tag en kasse fra bagagerummet med [E] og lever den til markøren.",
+        "take_box": "Tag en kasse med produkter",
+        "deliver_box": "Levér en kasse med produkter",
+        "another_box": "Hent den næste kasse",
+        "goto_next_point": "Du har leveret alle produkterne, gå til den næste levering",
+        "return_to_station": "Du har leveret alle produkterne. Returner til stationen",
+        "job_completed": "Du har fuldført din rute. Venligst hent din lønseddel"
+    },
+    "info": {
+        "pickup_paycheck": "[E] - Hent lønseddel",
+        "store_vehicle": "[E] - Parkér køretøjet",
+        "vehicles": "[E] - Køretøjer",
+        "deliver_to_store": "Levér kassen til butikken"
+    }
+}
