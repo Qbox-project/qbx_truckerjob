@@ -2,8 +2,11 @@ return {
     locations = {
         main = {
             label = 'Truck Shed',
-            coords = vec3(153.68, -3211.88, 5.91),
+            coords = vec3(153, -3211.68, 5.91),
             size = vec3(3.0, 3.0, 5.0),
+            markerType = 2,
+            markerRadius = 10.0,
+            interactionsRadius = 5.0,
             rotation = 274.5,
             icon = 'fa-solid fa-eye',
             debug = false
@@ -11,7 +14,9 @@ return {
         vehicle = {
             label = 'Truck Storage',
             coords = vec3(141.12, -3204.31, 5.85),
-            size = vec3(5.0, 5.0, 5.0),
+            markerType = 2,
+            markerRadius = 10.0,
+            interactionsRadius = 5.0,
             rotation = 267.5,
             debug = false
         },
