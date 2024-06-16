@@ -7,7 +7,7 @@ local hasBox = false
 local truckVehBlip = 0
 local truckerBlip = 0
 local returningToStation = false
-local currentPlate, selectedVeh
+local currentPlate
 
 -- Functions
 local function returnToStation()
@@ -63,7 +63,7 @@ local function returnVehicle()
     end
 
     DeleteVehicle(cache.vehicle)
-    TriggerServerEvent('qbx_truckerjob:server:doBail', false)
+    TriggerServerEvent('qbx_truckerjob:server:returnVehicle')
 
     if DoesBlipExist(currentBlip) then
         RemoveBlip(currentBlip)
@@ -83,10 +83,8 @@ local function openMenuGarage()
     for k in pairs(config.vehicles) do
         truckMenu[#truckMenu + 1] = {
             title = config.vehicles[k],
-            event = "qbx_truckerjob:client:takeOutVehicle",
-            args = {
-                vehicle = k
-            }
+            serverEvent = 'qbx_truckerjob:server:doBail',
+            args = k
         }
     end
 
@@ -457,8 +455,8 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
     createElements()
 end)
 
-RegisterNetEvent('qbx_truckerjob:client:spawnVehicle', function()
-    local netId, plate = lib.callback.await('qbx_truckerjob:server:spawnVehicle', false, selectedVeh)
+RegisterNetEvent('qbx_truckerjob:client:spawnVehicle', function(veh)
+    local netId, plate = lib.callback.await('qbx_truckerjob:server:spawnVehicle', false, veh)
     if not netId then return end
     currentPlate = plate
     local vehicle = NetToVeh(netId)
@@ -470,10 +468,4 @@ RegisterNetEvent('qbx_truckerjob:client:spawnVehicle', function()
 
     if not location then return end
     GetNewLocation(location, drop)
-end)
-
-RegisterNetEvent('qbx_truckerjob:client:takeOutVehicle', function(data)
-    local vehicleInfo = data.vehicle
-    TriggerServerEvent('qbx_truckerjob:server:doBail', true, vehicleInfo)
-    selectedVeh = vehicleInfo
 end)

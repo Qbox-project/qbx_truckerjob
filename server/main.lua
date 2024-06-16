@@ -42,41 +42,49 @@ local function turnAntiSpawnAbuseOn(citizenid)
     end)
 end
 
-RegisterNetEvent('qbx_truckerjob:server:doBail', function(bool, vehInfo)
+RegisterNetEvent('qbx_truckerjob:server:returnVehicle', function ()
     local player = getPlayer(source)
 
     if not player then return end
 
     local citizenid = player.PlayerData.citizenid
 
-    if bool then
-        turnAntiSpawnAbuseOn(citizenid)
-        if antiAbuse[citizenid] then
-            return notify(player, locale("error.too_many_rents", config.bailPrice), "error")
-        end
-
-        local money = player.PlayerData.money
-
-        if money.cash < config.bailPrice then
-            if money.bank < config.bailPrice then
-                return notify(player, locale("error.no_deposit", config.bailPrice), "error")
-            end
-
-            player.Functions.RemoveMoney('bank', config.bailPrice, "tow-received-bail")
-            notify(player, locale("success.paid_with_bank", config.bailPrice), "success")
-        else
-            player.Functions.RemoveMoney('cash', config.bailPrice, "tow-received-bail")
-            notify(player, locale("success.paid_with_cash", config.bailPrice), "success")
-        end
-
-        bail[citizenid] = config.bailPrice
-        TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', player.PlayerData.source, vehInfo)
-    elseif bail[citizenid] then
+    if bail[citizenid] then
         player.Functions.AddMoney('cash', bail[citizenid], "trucker-bail-paid")
         bail[citizenid] = nil
 
         notify(player, locale("success.refund_to_cash", config.bailPrice), "success")
     end
+end)
+
+RegisterNetEvent('qbx_truckerjob:server:doBail', function(veh)
+    local player = getPlayer(source)
+
+    if not player then return end
+
+    local citizenid = player.PlayerData.citizenid
+
+    turnAntiSpawnAbuseOn(citizenid)
+    if antiAbuse[citizenid] then
+        return notify(player, locale("error.too_many_rents", config.bailPrice), "error")
+    end
+
+    local money = player.PlayerData.money
+
+    if money.cash < config.bailPrice then
+        if money.bank < config.bailPrice then
+            return notify(player, locale("error.no_deposit", config.bailPrice), "error")
+        end
+
+        player.Functions.RemoveMoney('bank', config.bailPrice, "tow-received-bail")
+        notify(player, locale("success.paid_with_bank", config.bailPrice), "success")
+    else
+        player.Functions.RemoveMoney('cash', config.bailPrice, "tow-received-bail")
+        notify(player, locale("success.paid_with_cash", config.bailPrice), "success")
+    end
+
+    bail[citizenid] = config.bailPrice
+    TriggerClientEvent('qbx_truckerjob:client:spawnVehicle', player.PlayerData.source, veh)
 end)
 
 RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
