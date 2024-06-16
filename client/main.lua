@@ -327,15 +327,8 @@ local function deliver()
             end
             currentLocation.zoneCombo:remove()
             currentLocation = {}
-            local location, drop = lib.callback.await('qbx_truckerjob:server:getNewTask', false)
-            if not location or QBX.PlayerData.job.name ~= 'trucker' then return
-            elseif location == 0 then
-                exports.qbx_core:Notify(locale('mission.return_to_station'), 'info')
-                returnToStation()
-            else
-                exports.qbx_core:Notify(locale('mission.goto_next_point'), 'info')
-                GetNewLocation(location, drop)
-            end
+
+            return true
         elseif currentLocation.currentCount ~= currentLocation.dropCount then
             exports.qbx_core:Notify(locale('mission.another_box'), 'info')
         else
@@ -347,7 +340,10 @@ local function deliver()
     end
 end
 
-local function createShopZone(location)
+local function getNewLocation(locationIndex, drop)
+    local location = sharedConfig.locations.stores[locationIndex]
+    currentLocation = { dropCount = drop, currentCount = 0 }
+
     local marker = lib.marker.new({
         coords = location.coords,
         type = location.markerType or 2,
@@ -355,7 +351,7 @@ local function createShopZone(location)
         width = 0.3
     })
 
-    local zone = lib.zones.box({
+    currentLocation.zoneCombo = lib.zones.box({
         name = location.label,
         coords = location.coords,
         size = location.size,
@@ -373,22 +369,23 @@ local function createShopZone(location)
                 elseif not hasBox then
                     getInTrunk()
                 elseif #(GetEntityCoords(cache.ped) - location.coords) < 5 then
-                    deliver()
+                    if deliver() then
+                        local newLocation, newDrop = lib.callback.await('qbx_truckerjob:server:getNewTask', false)
+                        if not newLocation or QBX.PlayerData.job.name ~= 'trucker' then return
+                        elseif newLocation == 0 then
+                            exports.qbx_core:Notify(locale('mission.return_to_station'), 'info')
+                            returnToStation()
+                        else
+                            exports.qbx_core:Notify(locale('mission.goto_next_point'), 'info')
+                            getNewLocation(newLocation, newDrop)
+                        end
+                    end
                 else
                     exports.qbx_core:Notify(locale('error.too_far_from_delivery'), 'error')
                 end
             end
         end,
     })
-
-    return zone
-end
-
-function GetNewLocation(locationIndex, drop)
-    local location = sharedConfig.locations.stores[locationIndex]
-    currentLocation = { dropCount = drop, currentCount = 0 }
-
-    currentLocation.zoneCombo = createShopZone(location)
 
     currentBlip = AddBlipForCoord(location.coords.x, location.coords.y, location.coords.z)
     SetBlipColour(currentBlip, 3)
@@ -465,5 +462,5 @@ RegisterNetEvent('qbx_truckerjob:client:spawnVehicle', function(veh)
     local location, drop = lib.callback.await('qbx_truckerjob:server:getNewTask', false, true)
 
     if not location then return end
-    GetNewLocation(location, drop)
+    getNewLocation(location, drop)
 end)
