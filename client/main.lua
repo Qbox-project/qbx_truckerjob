@@ -318,7 +318,7 @@ local function deliver()
         ClearPedTasks(cache.ped)
         hasBox = false
         currentLocation.currentCount += 1
-        lib.print.debug('count: '..currentLocation.currentCount..'/'..currentLocation.dropCount)
+        lib.print.debug('count:', currentLocation.currentCount, '/', currentLocation.dropCount)
         if currentLocation.currentCount == currentLocation.dropCount then
             if DoesBlipExist(currentBlip) then
                 RemoveBlip(currentBlip)
