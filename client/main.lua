@@ -460,8 +460,6 @@ RegisterNetEvent('qbx_truckerjob:client:spawnVehicle', function(veh)
     if not netId then return end
     currentPlate = plate
     local vehicle = NetToVeh(netId)
-    SetVehicleLivery(vehicle, 1)
-    SetVehicleColours(vehicle, 122, 122)
     SetVehicleEngineOn(vehicle, true, true, false)
 
     local location, drop = lib.callback.await('qbx_truckerjob:server:getNewTask', false, true)

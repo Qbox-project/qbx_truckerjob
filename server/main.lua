@@ -129,16 +129,23 @@ lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, mod
 
     local vehicleLocation = sharedConfig.locations.vehicle
 
+    local plate = "TRUK" .. lib.string.random('1111')
     local netId, veh = qbx.spawnVehicle({
         model = model,
         spawnSource = vec4(vehicleLocation.coords.x, vehicleLocation.coords.y, vehicleLocation.coords.z, vehicleLocation.rotation),
         warp = GetPlayerPed(source),
+        props = {
+            plate = plate,
+            modLivery = 1,
+            color1 = 122,
+            color2 = 122,
+        }
     })
+
     if not netId or netId == 0 then return end
     if not veh or veh == 0 then return end
 
-    local plate = "TRUK" .. lib.string.random('1111')
-    SetVehicleNumberPlateText(veh, plate)
+    lib.print.debug('plate: %s', GetVehicleNumberPlateText(veh))
     TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
     return netId, plate
 end)
