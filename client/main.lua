@@ -329,14 +329,13 @@ local function deliver()
             currentLocation = {}
 
             return true
-        elseif currentLocation.currentCount ~= currentLocation.dropCount then
-            exports.qbx_core:Notify(locale('mission.another_box'), 'info')
         else
-            ClearPedTasks(cache.ped)
-            StopAnimTask(cache.ped, "anim@gangops@facility@servers@", "hotwire", 1.0)
-            exports.scully_emotemenu:cancelEmote()
-            exports.qbx_core:Notify(locale('error.cancelled'), 'error')
+            exports.qbx_core:Notify(locale('mission.another_box'), 'info')
         end
+    else
+        ClearPedTasks(cache.ped)
+        exports.scully_emotemenu:cancelEmote()
+        exports.qbx_core:Notify(locale('error.cancelled'), 'error')
     end
 end
 
