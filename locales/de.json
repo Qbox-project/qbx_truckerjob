@@ -1,0 +1,40 @@
+{
+    "error": {
+        "no_deposit": "$%s Kaution erforderlich",
+        "cancelled": "Abgebrochen",
+        "vehicle_not_correct": "Dies ist kein Nutzfahrzeug!",
+        "no_driver": "Du musst der Fahrer sein, um dies zu tun",
+        "no_work_done": "Du hast noch keine Lieferungen gemacht",
+        "backdoors_not_open": "Die Hecktüren des Fahrzeugs sind nicht offen",
+        "get_out_vehicle": "Du musst aus dem Fahrzeug aussteigen, um diese Aktion auszuführen",
+        "too_far_from_trunk": "Du musst die Kisten aus dem Kofferraum deines Fahrzeugs holen",
+        "too_far_from_delivery": "Du musst näher am Lieferpunkt sein",
+        "too_many_rents": "Du hast kürzlich ein Auto gemietet, komm in ein paar Minuten zurück"
+    },
+    "success": {
+        "paid_with_cash": "$%s Kaution bar bezahlt",
+        "paid_with_bank": "$%s Kaution von der Bank bezahlt",
+        "refund_to_cash": "$%s Kaution zurückerstattet",
+        "you_earned": "Du hast $%s verdient",
+        "payslip_time": "Du hast alle Geschäfte besucht. Es ist Zeit für deinen Gehaltsscheck!"
+    },
+    "menu": {
+        "header": "Verfügbare Fahrzeuge",
+        "close_menu": "⬅ Menü schließen"
+    },
+    "mission": {
+        "store_reached": "Geschäft erreicht. Hol eine Kiste aus dem Kofferraum mit [E] und liefere sie zum Marker.",
+        "take_box": "Nimm eine Kiste mit Produkten",
+        "deliver_box": "Liefere eine Kiste mit Produkten",
+        "another_box": "Nimm die nächste Kiste",
+        "goto_next_point": "Du hast alle Produkte geliefert, gehe zur nächsten Lieferung",
+        "return_to_station": "Du hast alle Produkte geliefert. Kehre zur Station zurück",
+        "job_completed": "Du hast deine Route abgeschlossen. Bitte hole deinen Gehaltsscheck ab"
+    },
+    "info": {
+        "pickup_paycheck": "[E] - Gehaltsscheck abholen",
+        "store_vehicle": "[E] - Fahrzeug abstellen",
+        "vehicles": "[E] - Fahrzeuge",
+        "deliver_to_store": "Liefere die Kiste zum Geschäft"
+    }
+}
