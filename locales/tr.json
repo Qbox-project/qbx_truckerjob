@@ -1,39 +1,40 @@
 {
-    "error": {
-        "no_deposit": "$%s Depozito gerekli",
-        "cancelled": "İptal Edildi",
-        "vehicle_not_correct": "Bu ticari bir araç değil!",
-        "no_driver": "Bunu yapmak için sürücü olmalısınız..",
-        "no_work_done": "Henüz bir iş yapmadınız...",
-        "backdoors_not_open": "The backdoors of the vehicle aren\"t open",
-        "get_out_vehicle": "You need to step out of the vehicle to perform this action",
-        "too_far_from_trunk": "You need to grab the boxes from the trunk of your vehicle",
-        "too_far_from_delivery": "You need to be closer to the delivery point"
-    },
-    "success": {
-        "paid_with_cash": "$%s Depozitoyu nakit öde",
-        "paid_with_bank": "$%s Depozitoyu bankadan öde",
-        "refund_to_cash": "$%s Depozitoyu cash ile öde",
-        "you_earned": "$%s kazandın",
-        "payslip_time": "Bütün dükkanlara gittin. Maaş Zamanı!"
-    },
-    "menu": {
-        "header": "Mevcut Kamyonlar",
-        "close_menu": "⬅ Menüyü Kapat"
-    },
-    "mission": {
-        "store_reached": "Mağazaya ulaşıldı, [E] ile bagajdan bir kutu alın ve işaretli yere teslim edin",
-        "take_box": "Bir kutu ürün al",
-        "deliver_box": "Kutuyu teslim et",
-        "another_box": "Başka bir kutu al",
-        "goto_next_point": "Tüm ürünleri teslim ettiniz, sonraki noktaya ilerleyin",
-        "return_to_station": "You Have Delivered All Products, Return to Station",
-        "job_completed": "You Have Completed Your Route, Please Collect Your Pay Cheque"
-    },
-    "info": {
-        "pickup_paycheck": "[E] - Pick up paycheck",
-        "store_vehicle": "[E] - Store the Vehicle",
-        "vehicles": "[E] - Vehicles",
-        "deliver_to_store": "Deliver the box to the store"
-    }
+  "error": {
+    "no_deposit": "$%s depozito gerekli",
+    "cancelled": "İptal edildi",
+    "vehicle_not_correct": "Bu ticari bir araç değil!",
+    "no_driver": "Bunu yapmak için sürücü olmalısın",
+    "no_work_done": "Henüz teslimat yapmadın",
+    "backdoors_not_open": "Aracın arka kapıları açık değil",
+    "get_out_vehicle": "Bu işlemi yapmak için araçtan inmelisin",
+    "too_far_from_trunk": "Kutuları aracının bagajından almalısın",
+    "too_far_from_delivery": "Teslimat noktasına daha yakın olmalısın",
+    "too_many_rents": "Yakın zamanda bir araç kiraladın, birkaç dakika sonra tekrar gel"
+  },
+  "success": {
+    "paid_with_cash": "$%s depozito nakit ödendi",
+    "paid_with_bank": "$%s depozito bankadan ödendi",
+    "refund_to_cash": "$%s depozito iade edildi",
+    "you_earned": "$%s kazandın",
+    "payslip_time": "Tüm dükkanları ziyaret ettin. Maaşını alma zamanı!"
+  },
+  "menu": {
+    "header": "Mevcut Araçlar",
+    "close_menu": "⬅ Menüyü Kapat"
+  },
+  "mission": {
+    "store_reached": "Mağazaya ulaşıldı. [E] tuşuna basarak bagajdan bir kutu al ve işaretleyiciye teslim et.",
+    "take_box": "Ürünlerden oluşan bir kutu al",
+    "deliver_box": "Ürünlerden oluşan bir kutuyu teslim et",
+    "another_box": "Sonraki kutuyu al",
+    "goto_next_point": "Tüm ürünleri teslim ettin, sonraki teslimata git",
+    "return_to_station": "Tüm ürünleri teslim ettin. İstasyona dön",
+    "job_completed": "Rotanı tamamladın. Lütfen maaşını al"
+  },
+  "info": {
+    "pickup_paycheck": "[E] - Maaşı al",
+    "store_vehicle": "[E] - Aracı depola",
+    "vehicles": "[E] - Araçlar",
+    "deliver_to_store": "Kutuyu mağazaya teslim et"
+  }
 }
