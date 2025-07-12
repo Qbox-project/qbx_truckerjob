@@ -12,7 +12,7 @@ local bail, drops, locations, antiAbuse = {}, {}, {}, {}
 ---@param duration? integer milliseconds notification will remain on screen. Defaults to 5000
 ---@param subTitle? string extra text under the title
 ---@param notifyPosition? NotificationPosition
----@param notifyStyle? table Custom styling. Please refer too https://overextended.dev/ox_lib/Modules/Interface/Client/notify#libnotify
+---@param notifyStyle? table Custom styling. Please refer too https://coxdocs.dev/ox_lib/Modules/Interface/Client/notify#libnotify
 ---@param notifyIcon? string Font Awesome 6 icon name
 ---@param notifyIconColor? string Custom color for the icon chosen before
 local function notify(player, text, notifyType, duration, subTitle, notifyPosition, notifyStyle, notifyIcon, notifyIconColor)
