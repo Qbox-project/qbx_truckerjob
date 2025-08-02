@@ -1,0 +1,40 @@
+{
+    "error": {
+        "no_deposit": "$%s Deposito richiesto",
+        "cancelled": "Cancellato",
+        "vehicle_not_correct": "Questo non è un veicolo commerciale!",
+        "no_driver": "Per poterlo fare, devi essere il guidatore",
+        "no_work_done": "Non hai completato nessuna spedizione",
+        "backdoors_not_open": "Le porte posteriori non sono aperte",
+        "get_out_vehicle": "Devi scendere dal veicolo per poter fare quest'azione",
+        "too_far_from_trunk": "Devi prendere i pacchi dal baule del tuo veicolo",
+        "too_far_from_delivery": "Devi essere più vicino all'indirizzo della spedizione",
+        "too_many_rents": "Hai da poco noleggiato una macchina, torna tra poco"
+    },
+    "success": {
+        "paid_with_cash": "$%s deposito pagato in contanti",
+        "paid_with_bank": "$%s deposito pagato tramite la banca",
+        "refund_to_cash": "$%s deposito ritornato",
+        "you_earned": "Hai guadagnato $%s",
+        "payslip_time": "Hai visitato tutti i negozi, è il momento della paga!"
+    },
+    "menu": {
+        "header": "Veicoli Disponibili",
+        "close_menu": "⬅ Chiudi Menu"
+    },
+    "mission": {
+        "store_reached": "Negozio raggiunto. Prendi un pacco dal baule [E] e consegnalo al punto segnalato.",
+        "take_box": "Prendi un pacco di prodotti",
+        "deliver_box": "Consegna un pacco di prodotti",
+        "another_box": "Prendi il prossimo pacco",
+        "goto_next_point": "Hai consegnato tutti i prodotti, vai alla prossima consegna",
+        "return_to_station": "Hai consegnato tutti i prodotti. Torna in sede",
+        "job_completed": "Hai completato le spedizioni. Perfavore, ritira la tua paga"
+    },
+    "info": {
+        "pickup_paycheck": "[E] - Prendi la paga",
+        "store_vehicle": "[E] - Parcheggia il Veicolo",
+        "vehicles": "[E] - Veicoli",
+        "deliver_to_store": "Consegna il pacco al negozio"
+    }
+}
