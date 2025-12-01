@@ -115,7 +115,9 @@ RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
     local price = (dropPrice * playerDrops) + bonus
     local taxAmount = math.ceil((price / 100) * config.paymentTax)
     local payment = price - taxAmount
-    player.Functions.AddJobReputation(playerDrops)
+    local newrep = player.PlayerData.metadata["jobrep"]
+    newrep.trucker += playerDrops
+    Player.Functions.SetMetaData("jobrep", newrep)
     drops[citizenid] = nil
 
     player.Functions.AddMoney('bank', payment, 'trucker-salary')
