@@ -1,0 +1,40 @@
+{
+    "error": {
+        "no_deposit": "Se requiere un depósito de $%s",
+        "cancelled": "Cancelado",
+        "vehicle_not_correct": "¡Este no es un vehículo comercial!",
+        "no_driver": "Debes ser el conductor para hacer esto",
+        "no_work_done": "Aún no has hecho ninguna entrega",
+        "backdoors_not_open": "Las puertas traseras del vehículo no están abiertas",
+        "get_out_vehicle": "Debes bajarte del vehículo para realizar esta acción",
+        "too_far_from_trunk": "Debes coger las cajas desde el maletero de tu vehículo",
+        "too_far_from_delivery": "Tienes que estar más cerca del punto de entrega",
+        "too_many_rents": "Has alquilado un vehículo recientemente, vuelve en unos minutos"
+    },
+    "success": {
+        "paid_with_cash": "Depósito de $%s pagado en efectivo",
+        "paid_with_bank": "Depósito de $%s pagado desde el banco",
+        "refund_to_cash": "Depósito de $%s devuelto",
+        "you_earned": "Has ganado $%s",
+        "payslip_time": "Has visitado todas las tiendas. ¡Es hora de cobrar tu nómina!"
+    },
+    "menu": {
+        "header": "Vehículos disponibles",
+        "close_menu": "⬅ Cerrar menú"
+    },
+    "mission": {
+        "store_reached": "Has llegado a la tienda. Coge una caja del maletero con [E] y entrégala en el marcador.",
+        "take_box": "Coger una caja de productos",
+        "deliver_box": "Entregar una caja de productos",
+        "another_box": "Recoge la siguiente caja",
+        "goto_next_point": "Has entregado todos los productos, ve al siguiente punto de entrega",
+        "return_to_station": "Has entregado todos los productos. Vuelve a la estación",
+        "job_completed": "Has completado tu ruta. Recoge tu nómina"
+    },
+    "info": {
+        "pickup_paycheck": "[E] - Recoger nómina",
+        "store_vehicle": "[E] - Guardar vehículo",
+        "vehicles": "[E] - Vehículos",
+        "deliver_to_store": "Entrega la caja en la tienda"
+    }
+}
