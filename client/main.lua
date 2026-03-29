@@ -289,7 +289,7 @@ local function getInTrunk()
             clip = 'hotwire'
         },
     }) then
-        exports.scully_emotemenu:playEmoteByCommand('box')
+        config.playEmoteByCommand('box')
         hasBox = true
         exports.qbx_core:Notify(locale('info.deliver_to_store'), 'info')
     else
@@ -314,7 +314,7 @@ local function deliver()
             clip = 'hotwire'
         },
     }) then
-        exports.scully_emotemenu:cancelEmote()
+        config.cancelEmote()
         ClearPedTasks(cache.ped)
         hasBox = false
         currentLocation.currentCount += 1
@@ -334,7 +334,7 @@ local function deliver()
         end
     else
         ClearPedTasks(cache.ped)
-        exports.scully_emotemenu:cancelEmote()
+        config.cancelEmote()
         exports.qbx_core:Notify(locale('error.cancelled'), 'error')
     end
 end
