@@ -1,0 +1,40 @@
+{
+    "error": {
+        "no_deposit": "$%s aanbetaling vereist",
+        "cancelled": "Geannuleerd",
+        "vehicle_not_correct": "Dit is geen bedrijfsvoertuig!",
+        "no_driver": "Hiervoor moet je de bestuurder zijn",
+        "no_work_done": "Je hebt nog geen leveringen gedaan",
+        "backdoors_not_open": "De achterdeuren van het voertuig zijn niet open",
+        "get_out_vehicle": "Je moet uit het voertuig stappen om deze actie uit te voeren",
+        "too_far_from_trunk": "Je moet de dozen uit de kofferbak van je voertuig pakken",
+        "too_far_from_delivery": "Je moet dichter bij het afleverpunt zijn",
+        "too_many_rents": "Je hebt onlangs een voertuig gehuurd. Kom over een paar minuten terug"
+    },
+    "success": {
+        "paid_with_cash": "$%s aanbetaling contant betaald",
+        "paid_with_bank": "$%s aanbetaling betaald via bank",
+        "refund_to_cash": "$%s aanbetaling terugbetaald",
+        "you_earned": "Je hebt $%sverdiend",
+        "payslip_time": "Je hebt alle winkels bezocht. Het is tijd voor je salaris!"
+    },
+    "menu": {
+        "header": "Beschikbare voertuigen",
+        "close_menu": "⬅ Sluit menu"
+    },
+    "mission": {
+        "store_reached": "Winkel bereikt. Pak een doos uit de kofferbak met [E] en lever deze af bij de marker.",
+        "take_box": "Neem een doos met producten",
+        "deliver_box": "Lever een doos met producten af",
+        "another_box": "Pak de volgende doos",
+        "goto_next_point": "Je hebt alle producten afgeleverd, ga naar de volgende bezorging",
+        "return_to_station": "Je hebt alle producten geleverd. Keer terug naar het station",
+        "job_completed": "Je hebt je route voltooid. Haal je salaris op"
+    },
+    "info": {
+        "pickup_paycheck": "[E] - Salaris ophalen",
+        "store_vehicle": "[E] - Parkeer het voertuig",
+        "vehicles": "[E] - Voertuigen",
+        "deliver_to_store": "Breng de doos naar de winkel"
+    }
+}
