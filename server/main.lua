@@ -1,4 +1,5 @@
 local config = require 'config.server'
+local clientConfig = require 'config.client'
 local sharedConfig = require 'config.shared'
 --- drops is the counter of packages for which payment is due
 local bail, drops, locations, antiAbuse, rentals = {}, {}, {}, {}, {}
@@ -53,6 +54,7 @@ RegisterNetEvent('qbx_truckerjob:server:returnVehicle', function ()
         local vehicle = rental and rental.netId and NetworkGetEntityFromNetworkId(rental.netId)
         if vehicle and DoesEntityExist(vehicle) then DeleteEntity(vehicle) end
         rentals[citizenid] = nil
+        locations[source] = nil
 
         notify(player, locale('success.refund_to_cash', config.bailPrice), 'success')
     end
@@ -64,7 +66,7 @@ RegisterNetEvent('qbx_truckerjob:server:doBail', function(veh)
     if not player then return end
 
     local citizenid = player.PlayerData.citizenid
-    if not config.allowedVehicles[veh] or bail[citizenid] then return end
+    if not clientConfig.vehicles[veh] or bail[citizenid] then return end
     if not isNear(source, sharedConfig.locations.vehicle.coords, 8.0) then return end
 
     local now = GetGameTimer()
@@ -136,13 +138,14 @@ lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, mod
 
     local citizenid = player.PlayerData.citizenid
     local rental = rentals[citizenid]
-    if not rental or rental.spawned or model ~= rental.model then return end
+    if not rental or rental.spawned or rental.spawning or model ~= rental.model then return end
     if not isNear(source, sharedConfig.locations.vehicle.coords, 8.0) then return end
 
     local vehicleLocation = sharedConfig.locations.vehicle
 
     local plate = 'TRUK' .. lib.string.random('1111')
-    local netId, veh = qbx.spawnVehicle({
+    rental.spawning = true
+    local success, netId, veh = pcall(qbx.spawnVehicle, {
         model = model,
         spawnSource = vec4(vehicleLocation.coords.x, vehicleLocation.coords.y, vehicleLocation.coords.z, vehicleLocation.rotation),
         warp = GetPlayerPed(source),
@@ -154,8 +157,14 @@ lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, mod
         }
     })
 
-    if not netId or netId == 0 then return end
+    rental.spawning = nil
+    if not success or not netId or netId == 0 then return end
     if not veh or veh == 0 then return end
+    local currentPlayer = exports.qbx_core:GetPlayer(source)
+    if rentals[citizenid] ~= rental or not currentPlayer or currentPlayer.PlayerData.citizenid ~= citizenid then
+        DeleteEntity(veh)
+        return
+    end
 
     rental.spawned = true
     rental.netId = netId
