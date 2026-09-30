@@ -8,6 +8,38 @@ local truckVehBlip = 0
 local truckerBlip = 0
 local returningToStation = false
 local currentPlate
+local boxObject
+local boxModel = `hei_prop_heist_box`
+local boxAnimDict = 'anim@heists@box_carry@'
+
+local function stopCarryingBox()
+    if boxObject and DoesEntityExist(boxObject) then DeleteEntity(boxObject) end
+    boxObject = nil
+    hasBox = false
+    StopAnimTask(cache.ped, boxAnimDict, 'idle', 1.0)
+end
+
+local function playBoxAnimation()
+    lib.playAnim(cache.ped, boxAnimDict, 'idle', 8.0, -8.0, -1, 49, 0, false, false, false)
+end
+
+local function startCarryingBox()
+    stopCarryingBox()
+    lib.requestModel(boxModel)
+    local coords = GetEntityCoords(cache.ped)
+    boxObject = CreateObject(boxModel, coords.x, coords.y, coords.z, true, true, false)
+    SetModelAsNoLongerNeeded(boxModel)
+    if not DoesEntityExist(boxObject) then
+        boxObject = nil
+        return false
+    end
+
+    AttachEntityToEntity(boxObject, cache.ped, GetPedBoneIndex(cache.ped, 60309),
+        0.025, 0.08, 0.255, -145.0, 290.0, 0.0, true, true, false, true, 1, true)
+    playBoxAnimation()
+    hasBox = true
+    return true
+end
 
 -- Functions
 local function returnToStation()
@@ -289,8 +321,7 @@ local function getInTrunk()
             clip = 'hotwire'
         },
     }) then
-        exports.scully_emotemenu:playEmoteByCommand('box')
-        hasBox = true
+        if not startCarryingBox() then return exports.qbx_core:Notify(locale('error.cancelled'), 'error') end
         exports.qbx_core:Notify(locale('info.deliver_to_store'), 'info')
     else
         exports.qbx_core:Notify(locale('error.cancelled'), 'error')
@@ -314,9 +345,8 @@ local function deliver()
             clip = 'hotwire'
         },
     }) then
-        exports.scully_emotemenu:cancelEmote()
+        stopCarryingBox()
         ClearPedTasks(cache.ped)
-        hasBox = false
         currentLocation.currentCount += 1
         lib.print.debug('count:', currentLocation.currentCount, '/', currentLocation.dropCount)
         if currentLocation.currentCount == currentLocation.dropCount then
@@ -334,7 +364,7 @@ local function deliver()
         end
     else
         ClearPedTasks(cache.ped)
-        exports.scully_emotemenu:cancelEmote()
+        playBoxAnimation()
         exports.qbx_core:Notify(locale('error.cancelled'), 'error')
     end
 end
@@ -419,6 +449,7 @@ end
 -- Events
 
 local function setInitState()
+    stopCarryingBox()
     removeElements()
     currentLocation = {}
     currentBlip = 0
@@ -442,6 +473,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
 end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
+    stopCarryingBox()
     removeElements()
 
     if next(currentLocation) and currentLocation.zoneCombo then
@@ -449,6 +481,10 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
     end
 
     createElements()
+end)
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource == cache.resource then stopCarryingBox() end
 end)
 
 RegisterNetEvent('qbx_truckerjob:client:spawnVehicle', function(veh)
